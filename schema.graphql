@@ -1,0 +1,33 @@
+type Query {
+  user(id: ID!): User
+}
+type Mutation{
+  create(name: String): String
+}
+
+# User 用户
+type User {
+  id: ID!
+  sex: Sex!
+  username: String!
+  password: String!
+  moods: [Mood!]
+}
+
+#  Mood 心情
+type Mood {
+  id: ID!
+  user: User!
+  score: Int!
+  comment: String
+  time: Time!
+}
+
+enum Sex {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+# 日期
+scalar Time

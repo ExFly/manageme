@@ -1,0 +1,12 @@
+schema: schema.graphql
+exec:
+  filename: graphm/generated.go
+model:
+  filename: modelm/generated.go
+
+
+models:
+  User:
+    model: github.com/exfly/manageme/modelm.User
+  Mood:
+    model: github.com/exfly/manageme/modelm.Mood
