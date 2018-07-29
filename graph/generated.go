@@ -1260,4 +1260,4 @@ enum Sex {
 
 # 日期
 scalar Time
-scalar bjectId`)
+scalar ObjectId`)
