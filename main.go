@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/exfly/manageme/graph"
+	mlog "github.com/exfly/manageme/log"
 	"github.com/vektah/gqlgen/graphql"
 	"github.com/vektah/gqlgen/handler"
 )
@@ -38,7 +39,7 @@ func main() {
 			return res, err
 		}),
 	))
-	fmt.Println("Listening on :8080")
+	mlog.LOG("INFO", "Listening on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 
 	// http.Handle("/", handler.Playground("Todo", "/query"))
