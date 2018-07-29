@@ -1,9 +1,10 @@
-package graphm
+package graph
 
 import (
 	context "context"
 
-	model "github.com/exfly/manageme/modelm"
+	model "github.com/exfly/manageme/model"
+	"github.com/globalsign/mgo/bson"
 )
 
 type Resolver struct{}
@@ -13,7 +14,7 @@ func (r *Resolver) Mood_user(ctx context.Context, obj *model.Mood) (model.User, 
 }
 
 func (r *Resolver) Query_user(ctx context.Context, id string) (*model.User, error) {
-	return &model.User{ID: id}, nil
+	return &model.User{ID: bson.ObjectId(id)}, nil
 }
 
 func (r *Resolver) User_moods(ctx context.Context, obj *model.User) ([]model.Mood, error) {
@@ -21,11 +22,13 @@ func (r *Resolver) User_moods(ctx context.Context, obj *model.User) ([]model.Moo
 }
 
 func (r *Resolver) Mutation_create(ctx context.Context, name *string) (*string, error) {
-	t := "createteststring"
+	t := "create test string"
 	return &t, nil
 }
 
-type App struct{}
+type App struct{
+	
+}
 
 func (r *App) Mood() MoodResolver {
 	return &moodResolver{r}
@@ -56,7 +59,7 @@ func (r *mutationResolver) Create(ctx context.Context, name *string) (*string, e
 type queryResolver struct{ *App }
 
 func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
-	return &model.User{ID: id}, nil
+	return &model.User{ID: bson.ObjectIdHex(id)}, nil
 }
 
 type userResolver struct{ *App }

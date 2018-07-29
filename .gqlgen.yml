@@ -1,12 +1,12 @@
 schema: schema.graphql
 exec:
-  filename: graphm/generated.go
+  filename: graph/generated.go
 model:
-  filename: modelm/generated.go
+  filename: model/generated.go
 
 
 models:
   User:
-    model: github.com/exfly/manageme/modelm.User
+    model: github.com/exfly/manageme/model.User
   Mood:
-    model: github.com/exfly/manageme/modelm.Mood
+    model: github.com/exfly/manageme/model.Mood
