@@ -26,8 +26,10 @@ func main() {
 
 	// log.Fatal(http.ListenAndServe(":8080", nil))
 
+	application := graph.NewResolver()
+
 	http.Handle("/", handler.Playground("manage_me", "/query"))
-	http.Handle("/query", handler.GraphQL(graph.NewExecutableSchema(&graph.App{}),
+	http.Handle("/query", handler.GraphQL(graph.NewExecutableSchema(application),
 		handler.ResolverMiddleware(func(ctx context.Context, next graphql.Resolver) (res interface{}, err error) {
 			rc := graphql.GetResolverContext(ctx)
 			fmt.Println("Entered", rc.Object, rc.Field.Name)
@@ -36,8 +38,7 @@ func main() {
 			return res, err
 		}),
 	))
-
-	log.Fatal("Listening on :8080")
+	fmt.Println("Listening on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 
 	// http.Handle("/", handler.Playground("Todo", "/query"))

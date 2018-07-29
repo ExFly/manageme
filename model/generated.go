@@ -8,6 +8,12 @@ import (
 	strconv "strconv"
 )
 
+type UserInput struct {
+	Sex      Sex    `json:"sex"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 type Sex string
 
 const (

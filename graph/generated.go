@@ -27,7 +27,7 @@ func NewExecutableSchema(resolvers ResolverRoot) graphql.ExecutableSchema {
 type Resolvers interface {
 	Mood_user(ctx context.Context, obj *model.Mood) (model.User, error)
 
-	Mutation_create(ctx context.Context, name *string) (*string, error)
+	Mutation_CreateUser(ctx context.Context, user model.UserInput) (*model.User, error)
 	Query_user(ctx context.Context, id string) (*model.User, error)
 
 	User_moods(ctx context.Context, obj *model.User) ([]model.Mood, error)
@@ -43,7 +43,7 @@ type MoodResolver interface {
 	User(ctx context.Context, obj *model.Mood) (model.User, error)
 }
 type MutationResolver interface {
-	Create(ctx context.Context, name *string) (*string, error)
+	CreateUser(ctx context.Context, user model.UserInput) (*model.User, error)
 }
 type QueryResolver interface {
 	User(ctx context.Context, id string) (*model.User, error)
@@ -60,8 +60,8 @@ func (s shortMapper) Mood_user(ctx context.Context, obj *model.Mood) (model.User
 	return s.r.Mood().User(ctx, obj)
 }
 
-func (s shortMapper) Mutation_create(ctx context.Context, name *string) (*string, error) {
-	return s.r.Mutation().Create(ctx, name)
+func (s shortMapper) Mutation_CreateUser(ctx context.Context, user model.UserInput) (*model.User, error) {
+	return s.r.Mutation().CreateUser(ctx, user)
 }
 
 func (s shortMapper) Query_user(ctx context.Context, id string) (*model.User, error) {
@@ -247,8 +247,8 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel []query.Selection
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "create":
-			out.Values[i] = ec._Mutation_create(ctx, field)
+		case "CreateUser":
+			out.Values[i] = ec._Mutation_CreateUser(ctx, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -257,23 +257,18 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel []query.Selection
 	return out
 }
 
-func (ec *executionContext) _Mutation_create(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+func (ec *executionContext) _Mutation_CreateUser(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
 	args := map[string]interface{}{}
-	var arg0 *string
-	if tmp, ok := field.Args["name"]; ok {
+	var arg0 model.UserInput
+	if tmp, ok := field.Args["user"]; ok {
 		var err error
-		var ptr1 string
-		if tmp != nil {
-			ptr1, err = graphql.UnmarshalString(tmp)
-			arg0 = &ptr1
-		}
-
+		arg0, err = UnmarshalUserInput(tmp)
 		if err != nil {
 			ec.Error(ctx, err)
 			return graphql.Null
 		}
 	}
-	args["name"] = arg0
+	args["user"] = arg0
 	rctx := graphql.GetResolverContext(ctx)
 	rctx.Object = "Mutation"
 	rctx.Args = args
@@ -281,7 +276,7 @@ func (ec *executionContext) _Mutation_create(ctx context.Context, field graphql.
 	rctx.PushField(field.Alias)
 	defer rctx.Pop()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
-		return ec.resolvers.Mutation_create(ctx, args["name"].(*string))
+		return ec.resolvers.Mutation_CreateUser(ctx, args["user"].(model.UserInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -290,11 +285,11 @@ func (ec *executionContext) _Mutation_create(ctx context.Context, field graphql.
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(*model.User)
 	if res == nil {
 		return graphql.Null
 	}
-	return graphql.MarshalString(*res)
+	return ec._User(ctx, field.Selections, res)
 }
 
 var queryImplementors = []string{"Query"}
@@ -1215,6 +1210,36 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 	return ec.___Type(ctx, field.Selections, res)
 }
 
+func UnmarshalUserInput(v interface{}) (model.UserInput, error) {
+	var it model.UserInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "sex":
+			var err error
+			err = (&it.Sex).UnmarshalGQL(v)
+			if err != nil {
+				return it, err
+			}
+		case "username":
+			var err error
+			it.Username, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "password":
+			var err error
+			it.Password, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) introspectSchema() *introspection.Schema {
 	return introspection.WrapSchema(parsedSchema)
 }
@@ -1231,7 +1256,7 @@ var parsedSchema = schema.MustParse(`type Query {
   user(id: ID!): User
 }
 type Mutation{
-  create(name: String): String
+  CreateUser(user:UserInput!): User
 }
 
 # User 用户
@@ -1260,4 +1285,10 @@ enum Sex {
 
 # 日期
 scalar Time
-scalar ObjectId`)
+# scalar ObjectId
+
+input UserInput {
+  sex: Sex!
+  username: String!
+  password: String!
+}`)
