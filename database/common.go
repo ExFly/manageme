@@ -7,21 +7,25 @@ import (
 	"github.com/globalsign/mgo/bson"
 )
 
+// DataSource like the name
 type DataSource struct {
 	session *mgo.Session
 }
 
-var DATABASENAME string = "test"
+// DATABASENAME the name of the database
+const DATABASENAME string = "test"
 
+// Collection enum Collection, Prevent spelling mistakes
 type Collection string
 
 const (
-	//U serCollection 用户表
+	//CollectionUser 用户表
 	CollectionUser Collection = "user"
-	// MoodCollection 评价表
+	// CollectionMood 评价表
 	CollectionMood Collection = "mood"
 )
 
+// NewDataSource the constructor of the data source
 func NewDataSource() *DataSource {
 	session, err := mgo.Dial("localhost")
 	if err != nil {
@@ -36,14 +40,17 @@ func genarateID() string {
 	return bson.NewObjectId().Hex()
 }
 
+// C get the collection by the name
 func (d *DataSource) C(name Collection) *mgo.Collection {
 	return d.session.DB(DATABASENAME).C(string(name))
 }
 
+// Close close the sessiion
 func (d *DataSource) Close() {
 	d.session.Close()
 }
 
+// CreateUser like the name
 func (d *DataSource) CreateUser(entity *model.User) (string, error) {
 	if entity.ID == "" {
 		entity.ID = genarateID()
@@ -56,16 +63,19 @@ func (d *DataSource) CreateUser(entity *model.User) (string, error) {
 	return entity.ID, nil
 }
 
+// FindUsers query the Users
 func (d *DataSource) FindUsers(query bson.M) (ret []model.User, err error) {
 	err = d.C(CollectionUser).Find(query).All(&ret)
 	return
 }
 
+// FindOneUser find one user
 func (d *DataSource) FindOneUser(query bson.M) (ret *model.User, err error) {
 	err = d.C(CollectionUser).Find(query).Limit(1).One(&ret)
 	return
 }
 
+// CreateMood like the name
 func (d *DataSource) CreateMood(entity *model.Mood) (string, error) {
 	if entity.ID == "" {
 		entity.ID = genarateID()
@@ -78,11 +88,13 @@ func (d *DataSource) CreateMood(entity *model.Mood) (string, error) {
 	return entity.ID, nil
 }
 
+// FindMoods like the name
 func (d *DataSource) FindMoods(query bson.M) (ret []model.Mood, err error) {
 	err = d.C(CollectionMood).Find(query).All(&ret)
 	return
 }
 
+// FindOneMood like the name
 func (d *DataSource) FindOneMood(query bson.M) (ret *model.Mood, err error) {
 	err = d.C(CollectionMood).Find(query).Limit(1).One(&ret)
 	return
