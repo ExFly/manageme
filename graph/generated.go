@@ -28,6 +28,7 @@ type Resolvers interface {
 	Mood_user(ctx context.Context, obj *model.Mood) (model.User, error)
 
 	Mutation_CreateUser(ctx context.Context, user model.UserInput) (*model.User, error)
+	Mutation_CreateMood(ctx context.Context, mood model.MoodInput) (*model.Mood, error)
 	Query_user(ctx context.Context, id string) (*model.User, error)
 
 	User_moods(ctx context.Context, obj *model.User) ([]model.Mood, error)
@@ -44,6 +45,7 @@ type MoodResolver interface {
 }
 type MutationResolver interface {
 	CreateUser(ctx context.Context, user model.UserInput) (*model.User, error)
+	CreateMood(ctx context.Context, mood model.MoodInput) (*model.Mood, error)
 }
 type QueryResolver interface {
 	User(ctx context.Context, id string) (*model.User, error)
@@ -62,6 +64,10 @@ func (s shortMapper) Mood_user(ctx context.Context, obj *model.Mood) (model.User
 
 func (s shortMapper) Mutation_CreateUser(ctx context.Context, user model.UserInput) (*model.User, error) {
 	return s.r.Mutation().CreateUser(ctx, user)
+}
+
+func (s shortMapper) Mutation_CreateMood(ctx context.Context, mood model.MoodInput) (*model.Mood, error) {
+	return s.r.Mutation().CreateMood(ctx, mood)
 }
 
 func (s shortMapper) Query_user(ctx context.Context, id string) (*model.User, error) {
@@ -246,6 +252,8 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel []query.Selection
 			out.Values[i] = graphql.MarshalString("Mutation")
 		case "CreateUser":
 			out.Values[i] = ec._Mutation_CreateUser(ctx, field)
+		case "CreateMood":
+			out.Values[i] = ec._Mutation_CreateMood(ctx, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -287,6 +295,41 @@ func (ec *executionContext) _Mutation_CreateUser(ctx context.Context, field grap
 		return graphql.Null
 	}
 	return ec._User(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_CreateMood(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	args := map[string]interface{}{}
+	var arg0 model.MoodInput
+	if tmp, ok := field.Args["mood"]; ok {
+		var err error
+		arg0, err = UnmarshalMoodInput(tmp)
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["mood"] = arg0
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "Mutation"
+	rctx.Args = args
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return ec.resolvers.Mutation_CreateMood(ctx, args["mood"].(model.MoodInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Mood)
+	if res == nil {
+		return graphql.Null
+	}
+	return ec._Mood(ctx, field.Selections, res)
 }
 
 var queryImplementors = []string{"Query"}
@@ -1207,6 +1250,41 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 	return ec.___Type(ctx, field.Selections, res)
 }
 
+func UnmarshalMoodInput(v interface{}) (model.MoodInput, error) {
+	var it model.MoodInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "userid":
+			var err error
+			it.Userid, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "score":
+			var err error
+			it.Score, err = graphql.UnmarshalInt(v)
+			if err != nil {
+				return it, err
+			}
+		case "comment":
+			var err error
+			var ptr1 string
+			if v != nil {
+				ptr1, err = graphql.UnmarshalString(v)
+				it.Comment = &ptr1
+			}
+
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func UnmarshalUserInput(v interface{}) (model.UserInput, error) {
 	var it model.UserInput
 	var asMap = v.(map[string]interface{})
@@ -1254,6 +1332,7 @@ var parsedSchema = schema.MustParse(`type Query {
 }
 type Mutation{
   CreateUser(user:UserInput!): User
+  CreateMood(mood:MoodInput!): Mood
 }
 
 # User 用户
@@ -1287,4 +1366,11 @@ input UserInput {
   sex: Sex!
   username: String!
   password: String!
-}`)
+}
+
+input MoodInput {
+  userid: String!
+  score: Int!
+  comment: String
+}
+`)

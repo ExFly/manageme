@@ -2,6 +2,7 @@ package graph
 
 import (
 	context "context"
+	"time"
 
 	"github.com/exfly/manageme/database"
 	mlog "github.com/exfly/manageme/log"
@@ -57,6 +58,14 @@ func (r *Resolver) Mutation_CreateUser(ctx context.Context, user model.UserInput
 	u := model.User{ID: bson.NewObjectId().Hex(), Username: user.Username, Password: user.Password}
 	r.datasource.CreateUser(&u)
 	return &u, nil
+}
+
+func (r *Resolver) Mutation_CreateMood(ctx context.Context, mood model.MoodInput) (*model.Mood, error) {
+	entity := model.Mood{ID: bson.NewObjectId().Hex(), User: mood.Userid, Score: mood.Score, Comment: *mood.Comment, Time: time.Now()}
+
+	_, err := r.datasource.CreateMood(&entity)
+	return &entity, err
+
 }
 
 func (r *Resolver) Query_user(ctx context.Context, id string) (*model.User, error) {
@@ -126,6 +135,9 @@ type mutationResolver struct{ *Resolver }
 
 func (r *mutationResolver) CreateUser(ctx context.Context, user model.UserInput) (*model.User, error) {
 	return r.Resolver.Mutation_CreateUser(ctx, user)
+}
+func (r *mutationResolver) CreateMood(ctx context.Context, mood model.MoodInput) (*model.Mood, error) {
+	return r.Resolver.Mutation_CreateMood(ctx, mood)
 }
 
 type queryResolver struct{ *Resolver }

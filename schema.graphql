@@ -3,6 +3,7 @@ type Query {
 }
 type Mutation{
   CreateUser(user:UserInput!): User
+  CreateMood(mood:MoodInput!): Mood
 }
 
 # User 用户
@@ -36,4 +37,10 @@ input UserInput {
   sex: Sex!
   username: String!
   password: String!
+}
+
+input MoodInput {
+  userid: String!
+  score: Int!
+  comment: String
 }

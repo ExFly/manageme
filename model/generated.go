@@ -8,6 +8,11 @@ import (
 	strconv "strconv"
 )
 
+type MoodInput struct {
+	Userid  string  `json:"userid"`
+	Score   int     `json:"score"`
+	Comment *string `json:"comment"`
+}
 type UserInput struct {
 	Sex      Sex    `json:"sex"`
 	Username string `json:"username"`
