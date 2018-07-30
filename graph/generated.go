@@ -1285,7 +1285,7 @@ enum Sex {
 
 # 日期
 scalar Time
-# scalar ObjectId
+scalar ObjectId
 
 input UserInput {
   sex: Sex!

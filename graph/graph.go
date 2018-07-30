@@ -17,6 +17,7 @@ type Resolver struct {
 func NewResolver() *Resolver {
 	session, err := mgo.Dial("localhost")
 	if err != nil {
+		mlog.DEBUG("")
 		panic(err)
 	}
 	session.SetMode(mgo.Monotonic, true)
@@ -28,8 +29,21 @@ func NewResolver() *Resolver {
 
 func (r *Resolver) Mood_user(ctx context.Context, obj *model.Mood) (model.User, error) {
 	mlog.DEBUG("Mood_usr", obj)
-	return model.User{ID: obj.ID}, nil
+	session := r.session.Clone()
+	mlog.DEBUG("session clone")
+	defer session.Close()
+
+	c := session.DB("test").C("user")
+
+	result := model.User{}
+	err := c.Find(bson.M{"_id": bson.ObjectId(obj.ID)}).One(&result)
+	if err != nil {
+		mlog.DEBUG("")
+		log.Fatal(err)
+	}
+	return result, err
 }
+
 func (r *Resolver) Mutation_CreateUser(ctx context.Context, user model.UserInput) (*model.User, error) {
 	mlog.DEBUG("start")
 	session := r.session.Clone()
@@ -39,25 +53,53 @@ func (r *Resolver) Mutation_CreateUser(ctx context.Context, user model.UserInput
 	u := model.User{ID: bson.NewObjectId(), Username: user.Username, Password: user.Password}
 	err := c.Insert(u)
 	if err != nil {
+		mlog.DEBUG("")
 		log.Fatal(err)
 	}
 	mlog.DEBUG("end")
-	return &u, nil
+	return &u, err
 }
+
 func (r *Resolver) Query_user(ctx context.Context, id string) (*model.User, error) {
 	mlog.DEBUG(id)
-	return &model.User{ID: bson.ObjectId(id)}, nil
+	session := r.session.Clone()
+	mlog.DEBUG("session clone")
+	defer session.Close()
+	c := session.DB("test").C("user")
+	result := model.User{}
+
+	err := c.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&result)
+	if err != nil {
+		mlog.DEBUG("")
+		log.Fatal(err)
+	}
+	return &result, nil
 }
 
 func (r *Resolver) User_moods(ctx context.Context, obj *model.User) ([]model.Mood, error) {
 	mlog.DEBUG("", obj)
-	return make([]model.Mood, 0), nil
+	mlog.DEBUG("", obj)
+	session := r.session.Clone()
+	mlog.DEBUG("session clone")
+	defer session.Close()
+	c := session.DB("test").C("user")
+
+	result := make([]model.Mood, 0)
+	for _, mid := range obj.Moods {
+		err := c.Find(bson.M{"moods": bson.ObjectIdHex(mid)}).All(&result)
+		if err != nil {
+			mlog.DEBUG("")
+			log.Fatal(err)
+		}
+	}
+	return result, nil
 }
 
 func (r *Resolver) Mood() MoodResolver {
 	mlog.DEBUG("")
 	return &moodResolver{r}
 }
+
 func (r *Resolver) Query() QueryResolver {
 	mlog.DEBUG("")
 	return &queryResolver{r}
@@ -75,7 +117,7 @@ type moodResolver struct{ *Resolver }
 
 func (r *moodResolver) User(ctx context.Context, obj *model.Mood) (model.User, error) {
 	mlog.DEBUG("", obj)
-	return model.User{}, nil
+	return r.Resolver.Mood_user(ctx, obj)
 }
 
 type mutationResolver struct{ *Resolver }
@@ -89,12 +131,13 @@ type queryResolver struct{ *Resolver }
 
 func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
 	mlog.DEBUG(id)
-	return &model.User{ID: bson.ObjectIdHex(id)}, nil
+	return r.Resolver.Query_user(ctx, id)
 }
 
 type userResolver struct{ *Resolver }
 
 func (r *userResolver) Moods(ctx context.Context, obj *model.User) ([]model.Mood, error) {
 	mlog.DEBUG("", obj)
-	return make([]model.Mood, 0), nil
+
+	return r.Resolver.User_moods(ctx, obj)
 }
