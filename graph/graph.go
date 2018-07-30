@@ -50,7 +50,7 @@ func (r *Resolver) Mutation_CreateUser(ctx context.Context, user model.UserInput
 	mlog.DEBUG("session clone")
 	defer session.Close()
 	c := session.DB("test").C("user")
-	u := model.User{ID: bson.NewObjectId(), Username: user.Username, Password: user.Password}
+	u := model.User{ID: string(bson.NewObjectId()), Username: user.Username, Password: user.Password}
 	err := c.Insert(u)
 	if err != nil {
 		mlog.DEBUG("")
@@ -83,8 +83,9 @@ func (r *Resolver) User_moods(ctx context.Context, obj *model.User) ([]model.Moo
 	mlog.DEBUG("session clone")
 	defer session.Close()
 	c := session.DB("test").C("user")
-
+	mlog.DEBUG("")
 	result := make([]model.Mood, 0)
+	mlog.DEBUG("")
 	for _, mid := range obj.Moods {
 		err := c.Find(bson.M{"moods": bson.ObjectIdHex(mid)}).All(&result)
 		if err != nil {
@@ -92,6 +93,7 @@ func (r *Resolver) User_moods(ctx context.Context, obj *model.User) ([]model.Moo
 			log.Fatal(err)
 		}
 	}
+	mlog.DEBUG("")
 	return result, nil
 }
 

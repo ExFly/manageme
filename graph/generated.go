@@ -161,7 +161,7 @@ func (ec *executionContext) _Mood_id(ctx context.Context, field graphql.Collecte
 	rctx.PushField(field.Alias)
 	defer rctx.Pop()
 	res := obj.ID
-	return graphql.MarshalID(string(res))
+	return graphql.MarshalID(res)
 }
 
 func (ec *executionContext) _Mood_user(ctx context.Context, field graphql.CollectedField, obj *model.Mood) graphql.Marshaler {
@@ -445,7 +445,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 	rctx.PushField(field.Alias)
 	defer rctx.Pop()
 	res := obj.ID
-	return graphql.MarshalID(string(res))
+	return graphql.MarshalID(res)
 }
 
 func (ec *executionContext) _User_sex(ctx context.Context, field graphql.CollectedField, obj *model.User) graphql.Marshaler {
@@ -1285,7 +1285,6 @@ enum Sex {
 
 # 日期
 scalar Time
-scalar ObjectId
 
 input UserInput {
   sex: Sex!
