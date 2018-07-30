@@ -3,6 +3,7 @@
 
 ## 命令
 * gqlgen
+* go generate ./...
 ## todo
 * [ ] 学习graphql，实现mongo数据查询
 * [ ] 
