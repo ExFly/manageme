@@ -1,6 +1,8 @@
 type Query {
-  user(id: ID!): User
+  User(id: ID!): User
+  Users():[User!]
 }
+
 type Mutation{
   CreateUser(user:UserInput!): User
   CreateMood(mood:MoodInput!): Mood

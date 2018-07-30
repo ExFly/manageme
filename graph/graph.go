@@ -85,6 +85,11 @@ func (r *Resolver) Query_user(ctx context.Context, id string) (*model.User, erro
 	return result, err
 }
 
+func (r *Resolver) Query_Users(ctx context.Context) ([]model.User, error) {
+	result, err := r.datasource.FindUsers(bson.M{})
+	return result, err
+}
+
 func (r *Resolver) User_moods(ctx context.Context, obj *model.User) ([]model.Mood, error) {
 	// mlog.DEBUG("", obj)
 	// mlog.DEBUG("", obj)
@@ -144,6 +149,9 @@ type queryResolver struct{ *Resolver }
 
 func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
 	return r.Resolver.Query_user(ctx, id)
+}
+func (r *queryResolver) Users(ctx context.Context) ([]model.User, error) {
+	return r.Resolver.Query_Users(ctx)
 }
 
 type userResolver struct{ *Resolver }

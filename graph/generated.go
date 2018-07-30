@@ -29,7 +29,8 @@ type Resolvers interface {
 
 	Mutation_CreateUser(ctx context.Context, user model.UserInput) (*model.User, error)
 	Mutation_CreateMood(ctx context.Context, mood model.MoodInput) (*model.Mood, error)
-	Query_user(ctx context.Context, id string) (*model.User, error)
+	Query_User(ctx context.Context, id string) (*model.User, error)
+	Query_Users(ctx context.Context) ([]model.User, error)
 
 	User_moods(ctx context.Context, obj *model.User) ([]model.Mood, error)
 }
@@ -49,6 +50,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	User(ctx context.Context, id string) (*model.User, error)
+	Users(ctx context.Context) ([]model.User, error)
 }
 type UserResolver interface {
 	Moods(ctx context.Context, obj *model.User) ([]model.Mood, error)
@@ -70,8 +72,12 @@ func (s shortMapper) Mutation_CreateMood(ctx context.Context, mood model.MoodInp
 	return s.r.Mutation().CreateMood(ctx, mood)
 }
 
-func (s shortMapper) Query_user(ctx context.Context, id string) (*model.User, error) {
+func (s shortMapper) Query_User(ctx context.Context, id string) (*model.User, error) {
 	return s.r.Query().User(ctx, id)
+}
+
+func (s shortMapper) Query_Users(ctx context.Context) ([]model.User, error) {
+	return s.r.Query().Users(ctx)
 }
 
 func (s shortMapper) User_moods(ctx context.Context, obj *model.User) ([]model.Mood, error) {
@@ -349,8 +355,10 @@ func (ec *executionContext) _Query(ctx context.Context, sel []query.Selection) g
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "user":
-			out.Values[i] = ec._Query_user(ctx, field)
+		case "User":
+			out.Values[i] = ec._Query_User(ctx, field)
+		case "Users":
+			out.Values[i] = ec._Query_Users(ctx, field)
 		case "__schema":
 			out.Values[i] = ec._Query___schema(ctx, field)
 		case "__type":
@@ -363,7 +371,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel []query.Selection) g
 	return out
 }
 
-func (ec *executionContext) _Query_user(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+func (ec *executionContext) _Query_User(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := field.Args["id"]; ok {
@@ -390,7 +398,7 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 		}()
 
 		resTmp, err := ec.ResolverMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
-			return ec.resolvers.Query_user(ctx, args["id"].(string))
+			return ec.resolvers.Query_User(ctx, args["id"].(string))
 		})
 		if err != nil {
 			ec.Error(ctx, err)
@@ -404,6 +412,45 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 			return graphql.Null
 		}
 		return ec._User(ctx, field.Selections, res)
+	})
+}
+
+func (ec *executionContext) _Query_Users(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{
+		Object: "Query",
+		Args:   nil,
+		Field:  field,
+	})
+	return graphql.Defer(func() (ret graphql.Marshaler) {
+		defer func() {
+			if r := recover(); r != nil {
+				userErr := ec.Recover(ctx, r)
+				ec.Error(ctx, userErr)
+				ret = graphql.Null
+			}
+		}()
+
+		resTmp, err := ec.ResolverMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+			return ec.resolvers.Query_Users(ctx)
+		})
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+		if resTmp == nil {
+			return graphql.Null
+		}
+		res := resTmp.([]model.User)
+		arr1 := graphql.Array{}
+		for idx1 := range res {
+			arr1 = append(arr1, func() graphql.Marshaler {
+				rctx := graphql.GetResolverContext(ctx)
+				rctx.PushIndex(idx1)
+				defer rctx.Pop()
+				return ec._User(ctx, field.Selections, &res[idx1])
+			}())
+		}
+		return arr1
 	})
 }
 
@@ -1328,8 +1375,10 @@ func (ec *executionContext) introspectType(name string) *introspection.Type {
 }
 
 var parsedSchema = schema.MustParse(`type Query {
-  user(id: ID!): User
+  User(id: ID!): User
+  Users():[User!]
 }
+
 type Mutation{
   CreateUser(user:UserInput!): User
   CreateMood(mood:MoodInput!): Mood
