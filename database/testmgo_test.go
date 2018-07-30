@@ -1,4 +1,4 @@
-package mongo
+package database
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ func mongot() {
 	session.SetMode(mgo.Monotonic, true)
 	c := session.DB("test").C("user")
 
-	err = c.Insert(model.User{ID: bson.NewObjectId(), Username: "mgoUsername"})
+	err = c.Insert(model.User{ID: bson.NewObjectId().Hex(), Username: "mgoUsername"})
 	if err != nil {
 		panic(err)
 	}

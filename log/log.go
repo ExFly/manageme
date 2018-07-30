@@ -11,6 +11,12 @@ import (
 func DEBUG(formating string, args ...interface{}) {
 	LOG("DEBUG", formating, args...)
 }
+func INFO(formating string, args ...interface{}) {
+	LOG("INFO", formating, args...)
+}
+func ERROR(formating string, args ...interface{}) {
+	LOG("ERROR", formating, args...)
+}
 
 func LOG(level string, formating string, args ...interface{}) {
 	filename, line, funcname := "???", 0, "???"
