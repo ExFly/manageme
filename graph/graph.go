@@ -2,7 +2,6 @@ package graph
 
 import (
 	context "context"
-	"log"
 
 	mlog "github.com/exfly/manageme/log"
 	model "github.com/exfly/manageme/model"
@@ -17,8 +16,8 @@ type Resolver struct {
 func NewResolver() *Resolver {
 	session, err := mgo.Dial("localhost")
 	if err != nil {
-		mlog.DEBUG("")
-		log.Fatal(err)
+		mlog.DEBUG("db error %v", err)
+		panic(err)
 	}
 	session.SetMode(mgo.Monotonic, true)
 
