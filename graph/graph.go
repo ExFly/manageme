@@ -23,6 +23,7 @@ func NewResolver() *Resolver {
 	return &application
 }
 
+// Mood_user how to get the user in model.Mood
 func (r *Resolver) Mood_user(ctx context.Context, obj *model.Mood) (model.User, error) {
 
 	result, err := r.datasource.FindOneUser(bson.M{"_id": obj.User})
@@ -30,6 +31,7 @@ func (r *Resolver) Mood_user(ctx context.Context, obj *model.Mood) (model.User, 
 	return *result, err
 }
 
+// Mutation_CreateUser like the name
 func (r *Resolver) Mutation_CreateUser(ctx context.Context, user model.UserInput) (*model.User, error) {
 
 	u := model.User{Username: user.Username, Password: user.Password}
@@ -37,6 +39,7 @@ func (r *Resolver) Mutation_CreateUser(ctx context.Context, user model.UserInput
 	return &u, nil
 }
 
+// Mutation_CreateMood like the name
 func (r *Resolver) Mutation_CreateMood(ctx context.Context, mood model.MoodInput) (*model.Mood, error) {
 
 	entity := model.Mood{User: mood.Userid, Score: mood.Score, Comment: *mood.Comment, Time: time.Now()}
@@ -46,17 +49,20 @@ func (r *Resolver) Mutation_CreateMood(ctx context.Context, mood model.MoodInput
 
 }
 
+// Query_user like the name
 func (r *Resolver) Query_user(ctx context.Context, id string) (*model.User, error) {
 
 	result, err := r.datasource.FindOneUser(bson.M{"_id": id})
 	return result, err
 }
 
+// Query_Users like the name
 func (r *Resolver) Query_Users(ctx context.Context) ([]model.User, error) {
 	result, err := r.datasource.FindUsers(bson.M{})
 	return result, err
 }
 
+// User_moods like the name
 func (r *Resolver) User_moods(ctx context.Context, obj *model.User) ([]model.Mood, error) {
 
 	result, err := r.datasource.FindMoods(bson.M{"user": obj.ID})
@@ -64,16 +70,22 @@ func (r *Resolver) User_moods(ctx context.Context, obj *model.User) ([]model.Moo
 	return result, err
 }
 
+// Mood l
 func (r *Resolver) Mood() MoodResolver {
 	return &moodResolver{r}
 }
 
+// Query l
 func (r *Resolver) Query() QueryResolver {
 	return &queryResolver{r}
 }
+
+// User l
 func (r *Resolver) User() UserResolver {
 	return &userResolver{r}
 }
+
+// Mutation l
 func (r *Resolver) Mutation() MutationResolver {
 	return &mutationResolver{r}
 }
@@ -89,9 +101,11 @@ func (r *moodResolver) User(ctx context.Context, obj *model.Mood) (model.User, e
 type mutationResolver struct{ *Resolver }
 
 func (r *mutationResolver) CreateUser(ctx context.Context, user model.UserInput) (*model.User, error) {
+	mlog.DEBUG("usr:%v", user)
 	return r.Resolver.Mutation_CreateUser(ctx, user)
 }
 func (r *mutationResolver) CreateMood(ctx context.Context, mood model.MoodInput) (*model.Mood, error) {
+	mlog.DEBUG("sr:%v", mood)
 	return r.Resolver.Mutation_CreateMood(ctx, mood)
 }
 
@@ -99,9 +113,11 @@ func (r *mutationResolver) CreateMood(ctx context.Context, mood model.MoodInput)
 type queryResolver struct{ *Resolver }
 
 func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
+	mlog.DEBUG("usr:%v", id)
 	return r.Resolver.Query_user(ctx, id)
 }
 func (r *queryResolver) Users(ctx context.Context) ([]model.User, error) {
+	mlog.DEBUG("")
 	return r.Resolver.Query_Users(ctx)
 }
 
@@ -109,5 +125,6 @@ func (r *queryResolver) Users(ctx context.Context) ([]model.User, error) {
 type userResolver struct{ *Resolver }
 
 func (r *userResolver) Moods(ctx context.Context, obj *model.User) ([]model.Mood, error) {
+	mlog.DEBUG("usr:%v", *obj)
 	return r.Resolver.User_moods(ctx, obj)
 }

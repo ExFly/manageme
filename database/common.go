@@ -33,6 +33,7 @@ func NewDataSource() *DataSource {
 		panic(err)
 	}
 	session.SetMode(mgo.Monotonic, true)
+	mlog.INFO("%v", session)
 	return &DataSource{session}
 }
 
@@ -47,6 +48,7 @@ func (d *DataSource) C(name Collection) *mgo.Collection {
 
 // Close close the sessiion
 func (d *DataSource) Close() {
+	mlog.DEBUG("")
 	d.session.Close()
 }
 
@@ -60,18 +62,23 @@ func (d *DataSource) CreateUser(entity *model.User) (string, error) {
 		// todo: if insert error
 		mlog.ERROR("%v : Insert error", err)
 	}
+	if err == nil {
+		mlog.DEBUG("%v", entity.ID)
+	}
 	return entity.ID, nil
 }
 
 // FindUsers query the Users
 func (d *DataSource) FindUsers(query bson.M) (ret []model.User, err error) {
 	err = d.C(CollectionUser).Find(query).All(&ret)
+	mlog.DEBUG("")
 	return
 }
 
 // FindOneUser find one user
 func (d *DataSource) FindOneUser(query bson.M) (ret *model.User, err error) {
 	err = d.C(CollectionUser).Find(query).Limit(1).One(&ret)
+	mlog.DEBUG("%v", ret.ID)
 	return
 }
 
@@ -85,17 +92,22 @@ func (d *DataSource) CreateMood(entity *model.Mood) (string, error) {
 		// todo: if insert error
 		mlog.ERROR("%v : Insert error", err)
 	}
+	if err == nil {
+		mlog.DEBUG("%v", entity.ID)
+	}
 	return entity.ID, nil
 }
 
 // FindMoods like the name
 func (d *DataSource) FindMoods(query bson.M) (ret []model.Mood, err error) {
 	err = d.C(CollectionMood).Find(query).All(&ret)
+	mlog.DEBUG("")
 	return
 }
 
 // FindOneMood like the name
 func (d *DataSource) FindOneMood(query bson.M) (ret *model.Mood, err error) {
 	err = d.C(CollectionMood).Find(query).Limit(1).One(&ret)
+	mlog.DEBUG("%v", ret.ID)
 	return
 }
