@@ -65,3 +65,25 @@ func (d *DataSource) FindOneUser(query bson.M) (ret *model.User, err error) {
 	err = d.C(CollectionUser).Find(query).Limit(1).One(&ret)
 	return
 }
+
+func (d *DataSource) CreateMood(entity *model.Mood) (string, error) {
+	if entity.ID == "" {
+		entity.ID = genarateID()
+	}
+	err := d.C(CollectionMood).Insert(entity)
+	if err != nil {
+		// todo: if insert error
+		mlog.ERROR("%v : Insert error", err)
+	}
+	return entity.ID, nil
+}
+
+func (d *DataSource) FindMoods(query bson.M) (ret []model.Mood, err error) {
+	err = d.C(CollectionMood).Find(query).All(&ret)
+	return
+}
+
+func (d *DataSource) FindOneMood(query bson.M) (ret *model.Mood, err error) {
+	err = d.C(CollectionMood).Find(query).Limit(1).One(&ret)
+	return
+}

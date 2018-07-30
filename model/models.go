@@ -8,7 +8,7 @@ type Mood struct {
 	ID      string    `json:"id" bson:"_id"`
 	User    string    `json:"user" bson:"user"`
 	Score   int       `json:"score" bson:"score"`
-	Comment *string   `json:"comment" bson:"comment"`
+	Comment string    `json:"comment" bson:"comment"`
 	Time    time.Time `json:"time" bson:"time"`
 }
 

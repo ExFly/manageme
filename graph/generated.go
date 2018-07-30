@@ -213,10 +213,7 @@ func (ec *executionContext) _Mood_comment(ctx context.Context, field graphql.Col
 	rctx.PushField(field.Alias)
 	defer rctx.Pop()
 	res := obj.Comment
-	if res == nil {
-		return graphql.Null
-	}
-	return graphql.MarshalString(*res)
+	return graphql.MarshalString(res)
 }
 
 func (ec *executionContext) _Mood_time(ctx context.Context, field graphql.CollectedField, obj *model.Mood) graphql.Marshaler {

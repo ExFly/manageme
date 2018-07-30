@@ -95,8 +95,11 @@ func (r *Resolver) User_moods(ctx context.Context, obj *model.User) ([]model.Moo
 	// }
 
 	//TODO find user's moods
-	result := make([]model.Mood, 0)
-	return result, nil
+	// result := make([]model.Mood, 0)
+
+	result, err := r.datasource.FindMoods(bson.M{"user": obj.ID})
+
+	return result, err
 }
 
 func (r *Resolver) Mood() MoodResolver {
