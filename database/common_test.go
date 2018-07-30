@@ -11,7 +11,7 @@ import (
 func TestDataSource_CreateUser(t *testing.T) {
 	var ds = NewDataSource()
 	t.Run("t", func(t *testing.T) {
-		user := model.User{"id", "", "username", "password", []string{}}
+		user := model.User{"id", "", "username", "password"}
 		id, _ := ds.CreateUser(&user)
 		if id != "id" {
 			t.Error(id)

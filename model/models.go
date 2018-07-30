@@ -13,9 +13,9 @@ type Mood struct {
 }
 
 type User struct {
-	ID       string   `json:"id" bson:"_id"`
-	Sex      Sex      `json:"sex" bson:"sex"`
-	Username string   `json:"username" bson:"username"`
-	Password string   `json:"password" bson:"password"`
-	Moods    []string `json:"moods" bson:"moods"`
+	ID       string `json:"id" bson:"_id"`
+	Sex      Sex    `json:"sex" bson:"sex"`
+	Username string `json:"username" bson:"username"`
+	Password string `json:"password" bson:"password"`
+	// Moods    []string `json:"moods" bson:"moods"`
 }
