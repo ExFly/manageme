@@ -52,4 +52,5 @@ query Users {
 
 ## 资源
 * [vue](https://cn.vuejs.org/index.html)
+* [vue graphql client](https://akryum.github.io/vue-apollo/guide/apollo/queries.html#simple-query)
 * [calendar-google-vue](https://github.com/FlowzPlatform/calendar-google-vue)
