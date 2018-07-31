@@ -24,7 +24,7 @@ mutation CreateUser {
 }
 
 mutation CreateMood {
-		CreateMood(mood: {userid: "5b5f14ee0f6eb0ff2eb07ba3", score: 5, comment: "mycommon"}) {
+		CreateMood(mood: {userid: "5b5fb8cb2816450c0605bda9", score: 5, comment: "mycommon"}) {
 		  id
 		  user {
 				id
@@ -33,7 +33,7 @@ mutation CreateMood {
 }
 
 query Users {
-  Users(){
+  Users{
     id
     moods{
       id
