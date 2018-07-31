@@ -18,33 +18,51 @@ go run main.go
 ## 检索
 ```graphql
 mutation CreateUser {
-		CreateUser(user: {sex: UNKNOWN, username: "username", password: "password"}) {
-		  id
-		}
+  CreateUser(user: {sex: UNKNOWN, username: "username", password: "password"}) {
+    id
+  }
 }
 
 mutation CreateMood {
-		CreateMood(mood: {userid: "5b5fb8cb2816450c0605bda9", score: 5, comment: "mycommon"}) {
-		  id
-		  user {
-				id
-      }
+  CreateMood(mood: {userid: "5b5ff11d2816453fe932f3b3", score: 5, comment: "mycommon"}) {
+    id
+    user {
+      id
+    }
+    score
+    comment
+    time
+  }
+}
+mutation DeleteMood {
+  DeleteMood(id:"5b5ff62e28164548b2930030")
+}
+
+query User {
+  User(id: "5b5ff11d2816453fe932f3b3") {
+    id
+    sex
+    username
+    password
+    moods {
+      id
+      time
+      comment
+      score
+    }
   }
 }
 
 query Users {
-  Users{
+  Users {
     id
-    moods{
+    sex
+    username
+    moods {
       id
-      user{
-        id
-        moods{
-          id
-        }
-      }
       score
       comment
+      time
     }
   }
 }

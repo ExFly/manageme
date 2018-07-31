@@ -111,3 +111,8 @@ func (d *DataSource) FindOneMood(query bson.M) (ret *model.Mood, err error) {
 	mlog.DEBUG("%v", ret.ID)
 	return
 }
+
+func (d *DataSource) DeleteMood(query bson.M) (err error) {
+	err = d.C(CollectionMood).Remove(query)
+	return
+}

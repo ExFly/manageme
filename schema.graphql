@@ -6,6 +6,7 @@ type Query {
 type Mutation{
   CreateUser(user:UserInput!): User
   CreateMood(mood:MoodInput!): Mood
+  DeleteMood(id:String!): Boolean!
 }
 
 # User 用户

@@ -49,6 +49,15 @@ func (r *Resolver) Mutation_CreateMood(ctx context.Context, mood model.MoodInput
 
 }
 
+func (r *Resolver) Mutation_DeleteMood(ctx context.Context, id string) (bool, error) {
+	err := r.datasource.DeleteMood(bson.M{"_id": id})
+	if err != nil {
+		mlog.ERROR("%v", err)
+		return false, err
+	}
+	return true, err
+}
+
 // Query_user like the name
 func (r *Resolver) Query_user(ctx context.Context, id string) (*model.User, error) {
 
@@ -107,6 +116,11 @@ func (r *mutationResolver) CreateUser(ctx context.Context, user model.UserInput)
 func (r *mutationResolver) CreateMood(ctx context.Context, mood model.MoodInput) (*model.Mood, error) {
 	mlog.DEBUG("sr:%v", mood)
 	return r.Resolver.Mutation_CreateMood(ctx, mood)
+}
+
+func (r *mutationResolver) DeleteMood(ctx context.Context, id string) (bool, error) {
+	mlog.DEBUG("%v", id)
+	return r.Resolver.Mutation_DeleteMood(ctx, id)
 }
 
 // QueryResolver implementer

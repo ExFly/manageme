@@ -29,6 +29,7 @@ type Resolvers interface {
 
 	Mutation_CreateUser(ctx context.Context, user model.UserInput) (*model.User, error)
 	Mutation_CreateMood(ctx context.Context, mood model.MoodInput) (*model.Mood, error)
+	Mutation_DeleteMood(ctx context.Context, id string) (bool, error)
 	Query_User(ctx context.Context, id string) (*model.User, error)
 	Query_Users(ctx context.Context) ([]model.User, error)
 
@@ -47,6 +48,7 @@ type MoodResolver interface {
 type MutationResolver interface {
 	CreateUser(ctx context.Context, user model.UserInput) (*model.User, error)
 	CreateMood(ctx context.Context, mood model.MoodInput) (*model.Mood, error)
+	DeleteMood(ctx context.Context, id string) (bool, error)
 }
 type QueryResolver interface {
 	User(ctx context.Context, id string) (*model.User, error)
@@ -70,6 +72,10 @@ func (s shortMapper) Mutation_CreateUser(ctx context.Context, user model.UserInp
 
 func (s shortMapper) Mutation_CreateMood(ctx context.Context, mood model.MoodInput) (*model.Mood, error) {
 	return s.r.Mutation().CreateMood(ctx, mood)
+}
+
+func (s shortMapper) Mutation_DeleteMood(ctx context.Context, id string) (bool, error) {
+	return s.r.Mutation().DeleteMood(ctx, id)
 }
 
 func (s shortMapper) Query_User(ctx context.Context, id string) (*model.User, error) {
@@ -260,6 +266,8 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel []query.Selection
 			out.Values[i] = ec._Mutation_CreateUser(ctx, field)
 		case "CreateMood":
 			out.Values[i] = ec._Mutation_CreateMood(ctx, field)
+		case "DeleteMood":
+			out.Values[i] = ec._Mutation_DeleteMood(ctx, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -336,6 +344,38 @@ func (ec *executionContext) _Mutation_CreateMood(ctx context.Context, field grap
 		return graphql.Null
 	}
 	return ec._Mood(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_DeleteMood(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := field.Args["id"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalString(tmp)
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["id"] = arg0
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "Mutation"
+	rctx.Args = args
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return ec.resolvers.Mutation_DeleteMood(ctx, args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	return graphql.MarshalBoolean(res)
 }
 
 var queryImplementors = []string{"Query"}
@@ -1382,6 +1422,7 @@ var parsedSchema = schema.MustParse(`type Query {
 type Mutation{
   CreateUser(user:UserInput!): User
   CreateMood(mood:MoodInput!): Mood
+  DeleteMood(id:String!): Boolean!
 }
 
 # User 用户
