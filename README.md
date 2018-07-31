@@ -1,30 +1,53 @@
 # manage me
-使用 `go graphql vue vuex` 做的管理自己日常todo+心情记录的项目
 
-## 命令
-* gqlgen
-* go generate ./...
+使用 `go graphql vue` 做的管理自己日常todo+心情记录的项目
 
-## todo
-* [ ] 学习graphql，实现mongo数据查询
-* [ ] 
+## How to use
 
-## 发现一个bug，当vendor中有相关包的时候，会出现
 ```sh
+git clone https://github.com/ExFly/manageme.git
+
+# backend
+dep ensure
+docker-compose up -d
 go run main.go
-# command-line-arguments./main.go:28:29: cannot use graphm.NewExecutableSchema(&graphm.App literal) (type "github.com/exfly/manageme/vendor/github.com/vektah/gqlgen/graphql".ExecutableSchema) as type "github.com/vektah/gqlgen/graphql".ExecutableSchema in argument to handler.GraphQL:        "github.com/exfly/manageme/vendor/github.com/vektah/gqlgen/graphql".ExecutableSchema does not implement "github.com/vektah/gqlgen/graphql".ExecutableSchema (wrong type for Mutation method)                have Mutation(context.Context, *"github.com/exfly/manageme/vendor/github.com/vektah/gqlgen/neelance/query".Operation) *"github.com/exfly/manageme/vendor/github.com/vektah/gqlgen/graphql".Response                want Mutation(context.Context, *"github.com/vektah/gqlgen/neelance/query".Operation) *"github.com/vektah/gqlgen/graphql".Response
+
+# frontend
+cd frontend
+yarn
+yarn run serve
 ```
 
-## 检索
+## Todo
+
+- [ ] 学习graphql，实现mongo数据查询
+- [ ] bootstrap
+
+## Test
+
+### CreateUser
+
 ```graphql
-mutation CreateUser {
-  CreateUser(user: {sex: UNKNOWN, username: "username", password: "password"}) {
+mutation CreateUser($user: UserInput!) {
+  CreateUser(user: $user) {
     id
   }
 }
+# variables
+{
+  "user": {
+    "sex": "MALE",
+    "username": "huihui",
+    "password": "123123"
+  }
+}
+```
 
-mutation CreateMood {
-  CreateMood(mood: {userid: "5b5ff11d2816453fe932f3b3", score: 5, comment: "mycommon"}) {
+### CreateMood
+
+```graphql
+mutation CreateMood($mood: MoodInput!) {
+  CreateMood(mood: $mood) {
     id
     user {
       id
@@ -34,41 +57,48 @@ mutation CreateMood {
     time
   }
 }
-mutation DeleteMood {
-  DeleteMood(id:"5b5ff62e28164548b2930030")
-}
-
-query User {
-  User(id: "5b5ff11d2816453fe932f3b3") {
-    id
-    sex
-    username
-    password
-    moods {
-      id
-      time
-      comment
-      score
-    }
-  }
-}
-
-query Users {
-  Users {
-    id
-    sex
-    username
-    moods {
-      id
-      score
-      comment
-      time
-    }
+# variables
+{
+  "mood": {
+    "userid": "5b608e8d87bfadee3de41c8b",
+    "score": 1,
+    "comment": "fuck"
   }
 }
 ```
 
-## 资源
-* [vue](https://cn.vuejs.org/index.html)
-* [vue graphql client](https://akryum.github.io/vue-apollo/guide/apollo/queries.html#simple-query)
-* [calendar-google-vue](https://github.com/FlowzPlatform/calendar-google-vue)
+### GetMood
+
+```graphql
+query GetMood($userID: ID!){
+  User(id: $userID) {
+    moods {
+      id
+      time
+      comment
+      score
+    }
+  }
+}
+# variables
+{
+  "userID": "5b608e8d87bfadee3de41c8b"
+}
+```
+
+## Reference
+
+- [vue](https://cn.vuejs.org/index.html)
+- [vue graphql client](https://akryum.github.io/vue-apollo/guide/apollo/queries.html#simple-query)
+- [calendar-google-vue](https://github.com/FlowzPlatform/calendar-google-vue)
+- [GraphQL Guides](https://www.graphql.com/guides/)
+- [gqlgen](https://gqlgen.com)
+
+## Bug report
+
+当vendor中有相关包的时候，会出现
+
+```sh
+go run main.go
+# command-line-arguments./main.go:28:29: cannot use graphm.NewExecutableSchema(&graphm.App literal) (type "github.com/exfly/manageme/vendor/github.com/vektah/gqlgen/graphql".ExecutableSchema) as type "github.com/vektah/gqlgen/graphql".ExecutableSchema in argument to handler.GraphQL:        "github.com/exfly/manageme/vendor/github.com/vektah/gqlgen/graphql".ExecutableSchema does not implement "github.com/vektah/gqlgen/graphql".ExecutableSchema (wrong type for Mutation method)                have Mutation(context.Context, *"github.com/exfly/manageme/vendor/github.com/vektah/gqlgen/neelance/query".Operation) *"github.com/exfly/manageme/vendor/github.com/vektah/gqlgen/graphql".Response                want Mutation(context.Context, *"github.com/vektah/gqlgen/neelance/query".Operation) *"github.com/vektah/gqlgen/graphql".Response
+```
