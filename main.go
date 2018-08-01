@@ -12,6 +12,13 @@ import (
 	"github.com/vektah/gqlgen/handler"
 )
 
+func AllowOriginMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 
 	// http.Handle("/", handler.Playground("manage_me", "/query"))
@@ -29,8 +36,7 @@ func main() {
 
 	application := graph.NewResolver()
 
-	http.Handle("/", handler.Playground("manage_me", "/query"))
-	http.Handle("/query", handler.GraphQL(graph.NewExecutableSchema(application),
+	graphqlHttpHandler := handler.GraphQL(graph.NewExecutableSchema(application),
 		handler.ResolverMiddleware(func(ctx context.Context, next graphql.Resolver) (res interface{}, err error) {
 			rc := graphql.GetResolverContext(ctx)
 			fmt.Println("Entered", rc.Object, rc.Field.Name)
@@ -38,7 +44,11 @@ func main() {
 			fmt.Println("Left", rc.Object, rc.Field.Name, "=>", res, err)
 			return res, err
 		}),
-	))
+	)
+
+	http.Handle("/", handler.Playground("manage_me", "/query"))
+	http.Handle("/query", AllowOriginMiddleware(graphqlHttpHandler))
+
 	mlog.LOG("INFO", "Listening on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 
