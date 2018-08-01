@@ -1,0 +1,11 @@
+mutation CreateMood($mood: MoodInput!) {
+  CreateMood(mood: $mood) {
+    id
+    user {
+      id
+    }
+    score
+    comment
+    time
+  }
+}

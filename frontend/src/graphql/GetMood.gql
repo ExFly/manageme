@@ -1,0 +1,10 @@
+query GetMood($userID: ID!){
+  User(id: $userID) {
+    moods {
+      id
+      time
+      comment
+      score
+    }
+  }
+}
