@@ -19,7 +19,7 @@ type Resolver struct {
 func NewResolver() *Resolver {
 	datasource := database.NewDataSource()
 	application := Resolver{datasource: datasource}
-	mlog.DEBUG("", application)
+	mlog.DEBUG("%v", application)
 	return &application
 }
 

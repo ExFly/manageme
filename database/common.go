@@ -27,7 +27,7 @@ const (
 
 // NewDataSource the constructor of the data source
 func NewDataSource() *DataSource {
-	session, err := mgo.Dial("localhost")
+	session, err := mgo.Dial("localhost/test")
 	if err != nil {
 		mlog.DEBUG("db error %v", err)
 		panic(err)

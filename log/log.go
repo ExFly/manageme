@@ -30,5 +30,5 @@ func LOG(level string, formating string, args ...interface{}) {
 		filename = filepath.Base(filename) // /full/path/basename.go => basename.go
 	}
 
-	log.Printf("%s:%d:%s [%5s]: %s\n", filename, line, funcname, level, fmt.Sprintf(formating, args...))
+	log.Printf("[%5s] %10s:%-3d : %20s : %s\n", level, filename, line, funcname, fmt.Sprintf(formating, args...))
 }
