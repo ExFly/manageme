@@ -18,6 +18,8 @@
     "@vue/cli-plugin-eslint": "^3.0.0-rc.10",
     "@vue/cli-service": "^3.0.0-rc.10",
     "graphql-tag": "^2.9.0",
+    "node-sass": "^4.9.2",
+    "sass-loader": "^7.1.0",
     "vue-cli-plugin-apollo": "^0.16.2",
     "vue-template-compiler": "^2.5.16"
   },
