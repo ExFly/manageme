@@ -8,6 +8,7 @@ import (
 
 	"github.com/exfly/manageme/graph"
 	mlog "github.com/exfly/manageme/log"
+	"github.com/gorilla/websocket"
 	"github.com/vektah/gqlgen/graphql"
 	"github.com/vektah/gqlgen/handler"
 )
@@ -30,6 +31,11 @@ func main() {
 			res, err = next(ctx)
 			fmt.Println("Left", rc.Object, rc.Field.Name, "=>", res, err)
 			return res, err
+		}), handler.WebsocketUpgrader(websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				// FIXME: do real check
+				return true
+			},
 		}),
 	)
 
@@ -40,3 +46,12 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", nil))
 
 }
+
+/*
+handler.WebsocketUpgrader(websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		// FIXME: do real check
+		return true
+	},
+})
+*/
