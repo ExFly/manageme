@@ -78,9 +78,9 @@ func main() {
 	graphqlHttpHandler := handler.GraphQL(graph.NewExecutableSchema(application),
 		handler.ResolverMiddleware(func(ctx context.Context, next graphql.Resolver) (res interface{}, err error) {
 			rc := graphql.GetResolverContext(ctx)
-			fmt.Println("Entered", rc.Object, rc.Field.Name)
+			mlog.DEBUG("Entered %v %v", rc.Object, rc.Field.Name)
 			res, err = next(ctx)
-			fmt.Println("Left", rc.Object, rc.Field.Name, "=>", res, err)
+			mlog.DEBUG("Left %v, %v => %v %v", rc.Object, rc.Field.Name, res, err)
 			return res, err
 		}),
 		handler.WebsocketUpgrader(websocket.Upgrader{
@@ -94,6 +94,7 @@ func main() {
 	router.Handle("/", handler.Playground("manage_me", "/query"))
 	router.Handle("/query", graphqlHttpHandler)
 	router.Handle("/loginas", http.HandlerFunc(loginHandler))
+	router.Handle("/logout", http.HandlerFunc(logoutHandler))
 
 	addr := fmt.Sprintf("%s:%d", "0.0.0.0", 8080)
 	srv := &http.Server{
@@ -131,9 +132,15 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		mlog.DEBUG("%v", err)
 		return
 	}
-	cookie := http.Cookie{Name: "jwt-token", Value: jwtToken, Path: "/", Expires: time.Now().Add(3600000 * time.Second)}
+	cookie := http.Cookie{Name: "jwt-token", Value: jwtToken, Path: "/", Expires: time.Now().Add(3600 * time.Second)}
 	http.SetCookie(w, &cookie)
 	toWrite := fmt.Sprintf("user:%s    token:%s", user.ID, jwtToken)
 	w.Write([]byte(toWrite))
 	mlog.DEBUG("%v %v", "login as", user.Username)
+}
+
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	cookie := http.Cookie{Name: "jwt-token", Value: "", Path: "/", Expires: time.Now()}
+	http.SetCookie(w, &cookie)
+	w.Write([]byte("Loginouted"))
 }

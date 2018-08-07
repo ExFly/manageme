@@ -86,6 +86,11 @@ query GetMood($userID: ID!){
 }
 ```
 
+## login
+* http://localhost:8080/loginas?user=username&pwd=password
+* http://localhost:8080/query?query={me{id%20username}}
+* http://localhost:8080/logout
+
 ## Reference
 
 - [vue](https://cn.vuejs.org/index.html)
