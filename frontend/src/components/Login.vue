@@ -21,8 +21,8 @@
 </template>
 
 <script>
-import gql from 'graphql-tag'
-// import CREATE_USER from "../graphql/CreateUser.gql"
+// import gql from 'graphql-tag'
+import CREATE_USER from "../graphql/CreateUser.gql"
 
 export default {
   data() {
@@ -39,11 +39,7 @@ export default {
     onLoginClick() {
       if (this.isInputValid) {
         this.$apollo.mutate({
-          mutation: gql`mutation CreateUser($user: UserInput!) {
-            CreateUser(user: $user) {
-              id
-            }
-          }`,
+          mutation: CREATE_USER,
           variables: {
             sex: 'UNKNOWN',
             username: this.username,

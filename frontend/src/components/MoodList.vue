@@ -8,7 +8,9 @@
 </template>
 
 <script>
-import gql from 'graphql-tag'
+// import gql from 'graphql-tag'
+import CREATE_MOOD from '@/graphql/CreateMood.gql'
+import GET_MOOD from '@/graphql/GetMood.gql'
 
 export default {
   data() {
@@ -18,34 +20,13 @@ export default {
   },
   apollo: {
     moods: {
-      query: gql`
-      query GetMood($userID: ID!){
-        User(id: $userID) {
-          moods {
-            id
-            time
-            comment
-            score
-          }
-        }
-      }`
+      query: GET_MOOD
     }
   },
   methods: {
     addMood() {
       this.$apollo.mutate({
-        mutation: gql`
-        mutation CreateMood($mood: MoodInput!) {
-          CreateMood(mood: $mood) {
-            id
-            user {
-              id
-            }
-            score
-            comment
-            time
-          }
-        }`,
+        mutation: CREATE_MOOD,
         variables: {
           user: this.$currentUser,
           score: this.score,
