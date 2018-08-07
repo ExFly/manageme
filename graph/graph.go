@@ -55,7 +55,11 @@ func (r *Resolver) Mutation_CreateUser(ctx context.Context, user model.UserInput
 // Mutation_CreateMood like the name
 func (r *Resolver) Mutation_CreateMood(ctx context.Context, mood model.MoodInput) (*model.Mood, error) {
 
-	entity := model.Mood{User: mood.Userid, Score: mood.Score, Comment: *mood.Comment, Time: time.Now()}
+	user := getUser(ctx)
+	if user == nil {
+		return nil, ErrNotLogined
+	}
+	entity := model.Mood{User: user.ID, Score: mood.Score, Comment: *mood.Comment, Time: time.Now()}
 
 	_, err := db.CreateMood(&entity)
 	return &entity, err
@@ -63,7 +67,11 @@ func (r *Resolver) Mutation_CreateMood(ctx context.Context, mood model.MoodInput
 }
 
 func (r *Resolver) Mutation_DeleteMood(ctx context.Context, id string) (bool, error) {
-	err := db.DeleteMood(bson.M{"_id": id})
+	user := getUser(ctx)
+	if user == nil {
+		return false, ErrNotLogined
+	}
+	err := db.DeleteMood(bson.M{"_id": id, "user": user.ID})
 	if err != nil {
 		mlog.ERROR("%v", err)
 		return false, err

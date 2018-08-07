@@ -9,7 +9,6 @@ import (
 )
 
 type MoodInput struct {
-	Userid  string  `json:"userid"`
 	Score   int     `json:"score"`
 	Comment *string `json:"comment"`
 }

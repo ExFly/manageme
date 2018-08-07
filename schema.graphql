@@ -1,5 +1,7 @@
 type Query {
   me: User
+
+  # debug method
   User(id: ID!): User
   Users():[User!]
 }
@@ -44,7 +46,6 @@ input UserInput {
 }
 
 input MoodInput {
-  userid: String!
   score: Int!
   comment: String
 }

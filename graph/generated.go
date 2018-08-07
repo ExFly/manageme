@@ -1384,12 +1384,6 @@ func UnmarshalMoodInput(v interface{}) (model.MoodInput, error) {
 
 	for k, v := range asMap {
 		switch k {
-		case "userid":
-			var err error
-			it.Userid, err = graphql.UnmarshalString(v)
-			if err != nil {
-				return it, err
-			}
 		case "score":
 			var err error
 			it.Score, err = graphql.UnmarshalInt(v)
@@ -1501,7 +1495,6 @@ input UserInput {
 }
 
 input MoodInput {
-  userid: String!
   score: Int!
   comment: String
 }
