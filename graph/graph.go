@@ -5,7 +5,6 @@ import (
 	"errors"
 	"time"
 
-	"git.in.chaitin.com/babysitter/man-month/server/gql"
 	db "github.com/exfly/manageme/database"
 	mlog "github.com/exfly/manageme/log"
 	model "github.com/exfly/manageme/model"
@@ -18,8 +17,8 @@ var (
 	ErrBadRequest   = errors.New("Bad Request")
 )
 
-func getUser(ctx context.Context) *gql.User {
-	user, ok := ctx.Value("user").(*gql.User)
+func getUser(ctx context.Context) *model.User {
+	user, ok := ctx.Value("user").(*model.User)
 	if !ok {
 		return nil
 	}
@@ -70,6 +69,10 @@ func (r *Resolver) Mutation_DeleteMood(ctx context.Context, id string) (bool, er
 		return false, err
 	}
 	return true, err
+}
+
+func (r *Resolver) Query_me(ctx context.Context) (*model.User, error) {
+	return getUser(ctx), nil
 }
 
 // Query_user like the name
@@ -147,6 +150,9 @@ func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error
 func (r *queryResolver) Users(ctx context.Context) ([]model.User, error) {
 	mlog.DEBUG("")
 	return r.Resolver.Query_Users(ctx)
+}
+func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
+	return r.Resolver.Query_me(ctx)
 }
 
 // UserResolver implementer

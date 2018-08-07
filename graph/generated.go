@@ -30,6 +30,7 @@ type Resolvers interface {
 	Mutation_CreateUser(ctx context.Context, user model.UserInput) (*model.User, error)
 	Mutation_CreateMood(ctx context.Context, mood model.MoodInput) (*model.Mood, error)
 	Mutation_DeleteMood(ctx context.Context, id string) (bool, error)
+	Query_me(ctx context.Context) (*model.User, error)
 	Query_User(ctx context.Context, id string) (*model.User, error)
 	Query_Users(ctx context.Context) ([]model.User, error)
 
@@ -51,6 +52,7 @@ type MutationResolver interface {
 	DeleteMood(ctx context.Context, id string) (bool, error)
 }
 type QueryResolver interface {
+	Me(ctx context.Context) (*model.User, error)
 	User(ctx context.Context, id string) (*model.User, error)
 	Users(ctx context.Context) ([]model.User, error)
 }
@@ -76,6 +78,10 @@ func (s shortMapper) Mutation_CreateMood(ctx context.Context, mood model.MoodInp
 
 func (s shortMapper) Mutation_DeleteMood(ctx context.Context, id string) (bool, error) {
 	return s.r.Mutation().DeleteMood(ctx, id)
+}
+
+func (s shortMapper) Query_me(ctx context.Context) (*model.User, error) {
+	return s.r.Query().Me(ctx)
 }
 
 func (s shortMapper) Query_User(ctx context.Context, id string) (*model.User, error) {
@@ -395,6 +401,8 @@ func (ec *executionContext) _Query(ctx context.Context, sel []query.Selection) g
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "me":
+			out.Values[i] = ec._Query_me(ctx, field)
 		case "User":
 			out.Values[i] = ec._Query_User(ctx, field)
 		case "Users":
@@ -409,6 +417,39 @@ func (ec *executionContext) _Query(ctx context.Context, sel []query.Selection) g
 	}
 
 	return out
+}
+
+func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{
+		Object: "Query",
+		Args:   nil,
+		Field:  field,
+	})
+	return graphql.Defer(func() (ret graphql.Marshaler) {
+		defer func() {
+			if r := recover(); r != nil {
+				userErr := ec.Recover(ctx, r)
+				ec.Error(ctx, userErr)
+				ret = graphql.Null
+			}
+		}()
+
+		resTmp, err := ec.ResolverMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+			return ec.resolvers.Query_me(ctx)
+		})
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+		if resTmp == nil {
+			return graphql.Null
+		}
+		res := resTmp.(*model.User)
+		if res == nil {
+			return graphql.Null
+		}
+		return ec._User(ctx, field.Selections, res)
+	})
 }
 
 func (ec *executionContext) _Query_User(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -1415,6 +1456,7 @@ func (ec *executionContext) introspectType(name string) *introspection.Type {
 }
 
 var parsedSchema = schema.MustParse(`type Query {
+  me: User
   User(id: ID!): User
   Users():[User!]
 }

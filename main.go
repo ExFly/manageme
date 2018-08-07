@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/exfly/manageme/model"
 	"github.com/exfly/manageme/oauth"
 	"github.com/globalsign/mgo/bson"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/vektah/gqlgen/graphql"
 	"github.com/vektah/gqlgen/handler"
@@ -40,7 +40,7 @@ func isValidToken(token string) (*model.User, bool) {
 	if err != nil {
 		return nil, false
 	}
-	return user, false
+	return user, true
 }
 
 func sessionMiddleware(next http.Handler) http.Handler {
@@ -51,6 +51,7 @@ func sessionMiddleware(next http.Handler) http.Handler {
 			// TODO
 			user, ok := isValidToken(tokenCookie.Value)
 			if ok && user != nil {
+				mlog.DEBUG("set session context")
 				ctx = context.WithValue(ctx, "user", user)
 				ctx = context.WithValue(ctx, "userId", user.ID)
 			}
@@ -68,7 +69,9 @@ func AllowOriginMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
-
+	router := mux.NewRouter()
+	router.Use(AllowOriginMiddleware)
+	router.Use(sessionMiddleware)
 	application := graph.NewResolver()
 	db.SetupDataSource()
 
@@ -79,7 +82,8 @@ func main() {
 			res, err = next(ctx)
 			fmt.Println("Left", rc.Object, rc.Field.Name, "=>", res, err)
 			return res, err
-		}), handler.WebsocketUpgrader(websocket.Upgrader{
+		}),
+		handler.WebsocketUpgrader(websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
 				// FIXME: do real check
 				return true
@@ -87,12 +91,19 @@ func main() {
 		}),
 	)
 
-	http.Handle("/", handler.Playground("manage_me", "/query"))
-	http.Handle("/query", AllowOriginMiddleware(sessionMiddleware(graphqlHttpHandler)))
-	http.Handle("/loginas", http.HandlerFunc(loginHandler))
+	router.Handle("/", handler.Playground("manage_me", "/query"))
+	router.Handle("/query", graphqlHttpHandler)
+	router.Handle("/loginas", http.HandlerFunc(loginHandler))
 
-	mlog.LOG("INFO", "Listening on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	addr := fmt.Sprintf("%s:%d", "0.0.0.0", 8080)
+	srv := &http.Server{
+		Handler:      router,
+		Addr:         addr,
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
+	}
+	mlog.DEBUG("Start server @ %s", addr)
+	mlog.DEBUG("%v", srv.ListenAndServe())
 
 }
 
@@ -120,7 +131,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		mlog.DEBUG("%v", err)
 		return
 	}
-	cookie := http.Cookie{Name: "jwt-token", Value: jwtToken, Expires: time.Now().Add(3600 * time.Second)}
+	cookie := http.Cookie{Name: "jwt-token", Value: jwtToken, Path: "/", Expires: time.Now().Add(3600000 * time.Second)}
 	http.SetCookie(w, &cookie)
 	toWrite := fmt.Sprintf("user:%s    token:%s", user.ID, jwtToken)
 	w.Write([]byte(toWrite))
