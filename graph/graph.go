@@ -2,13 +2,29 @@ package graph
 
 import (
 	context "context"
+	"errors"
 	"time"
 
+	"git.in.chaitin.com/babysitter/man-month/server/gql"
 	db "github.com/exfly/manageme/database"
 	mlog "github.com/exfly/manageme/log"
 	model "github.com/exfly/manageme/model"
 	"github.com/globalsign/mgo/bson"
 )
+
+var (
+	ErrNotLogined   = errors.New("not logined")
+	ErrNoPermission = errors.New("no permission")
+	ErrBadRequest   = errors.New("Bad Request")
+)
+
+func getUser(ctx context.Context) *gql.User {
+	user, ok := ctx.Value("user").(*gql.User)
+	if !ok {
+		return nil
+	}
+	return user
+}
 
 // Resolver implement Resolvers and ResolverRoot
 type Resolver struct {

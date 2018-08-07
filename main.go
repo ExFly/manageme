@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	db "github.com/exfly/manageme/database"
@@ -12,32 +13,34 @@ import (
 	mlog "github.com/exfly/manageme/log"
 	"github.com/exfly/manageme/model"
 	"github.com/exfly/manageme/oauth"
+	"github.com/globalsign/mgo/bson"
 	"github.com/gorilla/websocket"
 	"github.com/vektah/gqlgen/graphql"
 	"github.com/vektah/gqlgen/handler"
 )
 
-func isValidToken(token string, payload string) bool {
+func isValidToken(token string) (*model.User, bool) {
 	parsedToken, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
 		// from github.com/dhrijalva/jwt-go/hmac.go we should return a []byte
 		// as we only use one single key, we just return it
 		return oauth.HmacSecret, nil
 	})
 	if err != nil {
-		return false
+		return nil, false
 	}
 	claim, ok := parsedToken.Claims.(jwt.MapClaims)
 	if !ok {
-		return false
+		return nil, false
 	}
 	userID, ok := claim["userId"]
 	if !ok {
-		return false
+		return nil, false
 	}
-	if userID == payload {
-		return true
+	user, err := db.FindOneUser(bson.M{"_id": userID})
+	if err != nil {
+		return nil, false
 	}
-	return false
+	return user, false
 }
 
 func sessionMiddleware(next http.Handler) http.Handler {
@@ -46,13 +49,13 @@ func sessionMiddleware(next http.Handler) http.Handler {
 		tokenCookie, err := r.Cookie("jwt-token")
 		if err == nil && tokenCookie != nil {
 			// TODO
-			user, ok := &model.User{}, true //isValidToken(tokenCookie.Value)
+			user, ok := isValidToken(tokenCookie.Value)
 			if ok && user != nil {
 				ctx = context.WithValue(ctx, "user", user)
 				ctx = context.WithValue(ctx, "userId", user.ID)
 			}
 		}
-
+		mlog.DEBUG("session middleware:%v", tokenCookie)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -85,18 +88,41 @@ func main() {
 	)
 
 	http.Handle("/", handler.Playground("manage_me", "/query"))
-	http.Handle("/query", AllowOriginMiddleware(graphqlHttpHandler))
+	http.Handle("/query", AllowOriginMiddleware(sessionMiddleware(graphqlHttpHandler)))
+	http.Handle("/loginas", http.HandlerFunc(loginHandler))
 
 	mlog.LOG("INFO", "Listening on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 
 }
 
-/*
-handler.WebsocketUpgrader(websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		// FIXME: do real check
-		return true
-	},
-})
-*/
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	params := r.URL.Query()
+	un, oku := params["user"]
+	pwd, okp := params["pwd"]
+	mlog.DEBUG("%v %v", oku, okp)
+	if !(oku && okp) {
+		mlog.DEBUG("login faild")
+		w.Write([]byte("con't login, maybe you done have param user or pwd"))
+		return
+	}
+	username := un[0]
+	password := pwd[0]
+	mlog.DEBUG("%v", username)
+	user, ok := db.FindOneUser(bson.M{"username": username, "password": password})
+	if ok != nil || user == nil {
+		mlog.DEBUG("dont have the user:%v", username)
+		w.Write([]byte("dont have the user:" + username))
+		return
+	}
+	jwtToken, err := oauth.CreateJWT(user.ID)
+	if err != nil {
+		mlog.DEBUG("%v", err)
+		return
+	}
+	cookie := http.Cookie{Name: "jwt-token", Value: jwtToken, Expires: time.Now().Add(3600 * time.Second)}
+	http.SetCookie(w, &cookie)
+	toWrite := fmt.Sprintf("user:%s    token:%s", user.ID, jwtToken)
+	w.Write([]byte(toWrite))
+	mlog.DEBUG("%v %v", "login as", user.Username)
+}

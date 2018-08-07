@@ -76,7 +76,7 @@ func FindUsers(query bson.M) (ret []model.User, err error) {
 // FindOneUser find one user
 func FindOneUser(query bson.M) (ret *model.User, err error) {
 	err = C(CollectionUser).Find(query).Limit(1).One(&ret)
-	mlog.DEBUG("%v", ret.ID)
+	mlog.DEBUG("%v", ret)
 	return
 }
 
