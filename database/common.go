@@ -8,9 +8,7 @@ import (
 )
 
 // DataSource like the name
-type DataSource struct {
-	session *mgo.Session
-}
+var session *mgo.Session
 
 // DATABASENAME the name of the database
 const DATABASENAME string = "test"
@@ -26,15 +24,15 @@ const (
 )
 
 // NewDataSource the constructor of the data source
-func NewDataSource() *DataSource {
-	session, err := mgo.Dial("localhost/test")
+func SetupDataSource() {
+	ses, err := mgo.Dial("localhost/test")
 	if err != nil {
 		mlog.DEBUG("db error %v", err)
 		panic(err)
 	}
-	session.SetMode(mgo.Monotonic, true)
+	ses.SetMode(mgo.Monotonic, true)
+	session = ses
 	mlog.INFO("%v", session)
-	return &DataSource{session}
 }
 
 func genarateID() string {
@@ -42,22 +40,22 @@ func genarateID() string {
 }
 
 // C get the collection by the name
-func (d *DataSource) C(name Collection) *mgo.Collection {
-	return d.session.DB(DATABASENAME).C(string(name))
+func C(name Collection) *mgo.Collection {
+	return session.DB(DATABASENAME).C(string(name))
 }
 
 // Close close the sessiion
-func (d *DataSource) Close() {
+func Close() {
 	mlog.DEBUG("")
-	d.session.Close()
+	session.Close()
 }
 
 // CreateUser like the name
-func (d *DataSource) CreateUser(entity *model.User) (string, error) {
+func CreateUser(entity *model.User) (string, error) {
 	if entity.ID == "" {
 		entity.ID = genarateID()
 	}
-	err := d.C(CollectionUser).Insert(entity)
+	err := C(CollectionUser).Insert(entity)
 	if err != nil {
 		// todo: if insert error
 		mlog.ERROR("%v : Insert error", err)
@@ -69,25 +67,25 @@ func (d *DataSource) CreateUser(entity *model.User) (string, error) {
 }
 
 // FindUsers query the Users
-func (d *DataSource) FindUsers(query bson.M) (ret []model.User, err error) {
-	err = d.C(CollectionUser).Find(query).All(&ret)
+func FindUsers(query bson.M) (ret []model.User, err error) {
+	err = C(CollectionUser).Find(query).All(&ret)
 	mlog.DEBUG("")
 	return
 }
 
 // FindOneUser find one user
-func (d *DataSource) FindOneUser(query bson.M) (ret *model.User, err error) {
-	err = d.C(CollectionUser).Find(query).Limit(1).One(&ret)
+func FindOneUser(query bson.M) (ret *model.User, err error) {
+	err = C(CollectionUser).Find(query).Limit(1).One(&ret)
 	mlog.DEBUG("%v", ret.ID)
 	return
 }
 
 // CreateMood like the name
-func (d *DataSource) CreateMood(entity *model.Mood) (string, error) {
+func CreateMood(entity *model.Mood) (string, error) {
 	if entity.ID == "" {
 		entity.ID = genarateID()
 	}
-	err := d.C(CollectionMood).Insert(entity)
+	err := C(CollectionMood).Insert(entity)
 	if err != nil {
 		// todo: if insert error
 		mlog.ERROR("%v : Insert error", err)
@@ -99,20 +97,20 @@ func (d *DataSource) CreateMood(entity *model.Mood) (string, error) {
 }
 
 // FindMoods like the name
-func (d *DataSource) FindMoods(query bson.M) (ret []model.Mood, err error) {
-	err = d.C(CollectionMood).Find(query).All(&ret)
+func FindMoods(query bson.M) (ret []model.Mood, err error) {
+	err = C(CollectionMood).Find(query).All(&ret)
 	mlog.DEBUG("")
 	return
 }
 
 // FindOneMood like the name
-func (d *DataSource) FindOneMood(query bson.M) (ret *model.Mood, err error) {
-	err = d.C(CollectionMood).Find(query).Limit(1).One(&ret)
+func FindOneMood(query bson.M) (ret *model.Mood, err error) {
+	err = C(CollectionMood).Find(query).Limit(1).One(&ret)
 	mlog.DEBUG("%v", ret.ID)
 	return
 }
 
-func (d *DataSource) DeleteMood(query bson.M) (err error) {
-	err = d.C(CollectionMood).Remove(query)
+func DeleteMood(query bson.M) (err error) {
+	err = C(CollectionMood).Remove(query)
 	return
 }

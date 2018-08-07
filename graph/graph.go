@@ -4,7 +4,7 @@ import (
 	context "context"
 	"time"
 
-	"github.com/exfly/manageme/database"
+	db "github.com/exfly/manageme/database"
 	mlog "github.com/exfly/manageme/log"
 	model "github.com/exfly/manageme/model"
 	"github.com/globalsign/mgo/bson"
@@ -12,13 +12,11 @@ import (
 
 // Resolver implement Resolvers and ResolverRoot
 type Resolver struct {
-	datasource *database.DataSource
 }
 
 // NewResolver the Resolver's constructor
 func NewResolver() *Resolver {
-	datasource := database.NewDataSource()
-	application := Resolver{datasource: datasource}
+	application := Resolver{}
 	mlog.DEBUG("%v", application)
 	return &application
 }
@@ -26,7 +24,7 @@ func NewResolver() *Resolver {
 // Mood_user how to get the user in model.Mood
 func (r *Resolver) Mood_user(ctx context.Context, obj *model.Mood) (model.User, error) {
 
-	result, err := r.datasource.FindOneUser(bson.M{"_id": obj.User})
+	result, err := db.FindOneUser(bson.M{"_id": obj.User})
 
 	return *result, err
 }
@@ -35,7 +33,7 @@ func (r *Resolver) Mood_user(ctx context.Context, obj *model.Mood) (model.User, 
 func (r *Resolver) Mutation_CreateUser(ctx context.Context, user model.UserInput) (*model.User, error) {
 
 	u := model.User{Username: user.Username, Password: user.Password}
-	r.datasource.CreateUser(&u)
+	db.CreateUser(&u)
 	return &u, nil
 }
 
@@ -44,13 +42,13 @@ func (r *Resolver) Mutation_CreateMood(ctx context.Context, mood model.MoodInput
 
 	entity := model.Mood{User: mood.Userid, Score: mood.Score, Comment: *mood.Comment, Time: time.Now()}
 
-	_, err := r.datasource.CreateMood(&entity)
+	_, err := db.CreateMood(&entity)
 	return &entity, err
 
 }
 
 func (r *Resolver) Mutation_DeleteMood(ctx context.Context, id string) (bool, error) {
-	err := r.datasource.DeleteMood(bson.M{"_id": id})
+	err := db.DeleteMood(bson.M{"_id": id})
 	if err != nil {
 		mlog.ERROR("%v", err)
 		return false, err
@@ -61,20 +59,20 @@ func (r *Resolver) Mutation_DeleteMood(ctx context.Context, id string) (bool, er
 // Query_user like the name
 func (r *Resolver) Query_user(ctx context.Context, id string) (*model.User, error) {
 
-	result, err := r.datasource.FindOneUser(bson.M{"_id": id})
+	result, err := db.FindOneUser(bson.M{"_id": id})
 	return result, err
 }
 
 // Query_Users like the name
 func (r *Resolver) Query_Users(ctx context.Context) ([]model.User, error) {
-	result, err := r.datasource.FindUsers(bson.M{})
+	result, err := db.FindUsers(bson.M{})
 	return result, err
 }
 
 // User_moods like the name
 func (r *Resolver) User_moods(ctx context.Context, obj *model.User) ([]model.Mood, error) {
 
-	result, err := r.datasource.FindMoods(bson.M{"user": obj.ID})
+	result, err := db.FindMoods(bson.M{"user": obj.ID})
 
 	return result, err
 }
