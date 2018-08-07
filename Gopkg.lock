@@ -2,15 +2,25 @@
 
 
 [[projects]]
+  digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
+  name = "github.com/dgrijalva/jwt-go"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
+
+[[projects]]
   branch = "master"
+  digest = "1:4b08116de0de75c041bb341686f0b139930f26cb84dfdf7641d435548114181d"
   name = "github.com/globalsign/mgo"
   packages = [
     ".",
     "bson",
     "internal/json",
     "internal/sasl",
-    "internal/scram"
+    "internal/scram",
   ]
+  pruneopts = "UT"
   revision = "113d3961e7311526535a1ef7042196563d442761"
 
 [[projects]]
@@ -33,16 +43,20 @@
   digest = "1:43dd08a10854b2056e615d1b1d22ac94559d822e1f8b6fcc92c1a1057e85188e"
   name = "github.com/gorilla/websocket"
   packages = ["."]
+  pruneopts = "UT"
   revision = "ea4d1f681babbce9545c9c5f3d5194a789c89f5b"
   version = "v1.2.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:5ab79470a1d0fb19b041a624415612f8236b3c06070161a910562f2b2d064355"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
+  pruneopts = "UT"
   revision = "f15292f7a699fcc1a38a80977f80a046874ba8ac"
 
 [[projects]]
+  digest = "1:13cdc380a2aeb66a6a8c6d3c9c9c9d5fa5ac3f79fbc06fef3a5192ec72be594d"
   name = "github.com/vektah/gqlgen"
   packages = [
     "client",
@@ -53,8 +67,9 @@
     "neelance/introspection",
     "neelance/query",
     "neelance/schema",
-    "neelance/validation"
+    "neelance/validation",
   ]
+  pruneopts = "UT"
   revision = "381b34691fd93829e50ba8821412dc3467ec4821"
   version = "0.3.0"
 
@@ -62,9 +77,11 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/dgrijalva/jwt-go",
     "github.com/globalsign/mgo",
     "github.com/globalsign/mgo/bson",
     "github.com/gorilla/mux",
+    "github.com/gorilla/websocket",
     "github.com/vektah/gqlgen/client",
     "github.com/vektah/gqlgen/graphql",
     "github.com/vektah/gqlgen/handler",
