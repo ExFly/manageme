@@ -9,6 +9,7 @@ type Query {
 type Mutation{
   CreateUser(user:UserInput!): User
   CreateMood(mood:MoodInput!): Mood
+  UpdateMood(moodId:String!, score:Int, Comment:String): Mood!
   DeleteMood(id:String!): Boolean!
 }
 

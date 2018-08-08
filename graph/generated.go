@@ -29,6 +29,7 @@ type Resolvers interface {
 
 	Mutation_CreateUser(ctx context.Context, user model.UserInput) (*model.User, error)
 	Mutation_CreateMood(ctx context.Context, mood model.MoodInput) (*model.Mood, error)
+	Mutation_UpdateMood(ctx context.Context, moodId string, score *int, Comment *string) (model.Mood, error)
 	Mutation_DeleteMood(ctx context.Context, id string) (bool, error)
 	Query_me(ctx context.Context) (*model.User, error)
 	Query_User(ctx context.Context, id string) (*model.User, error)
@@ -49,6 +50,7 @@ type MoodResolver interface {
 type MutationResolver interface {
 	CreateUser(ctx context.Context, user model.UserInput) (*model.User, error)
 	CreateMood(ctx context.Context, mood model.MoodInput) (*model.Mood, error)
+	UpdateMood(ctx context.Context, moodId string, score *int, Comment *string) (model.Mood, error)
 	DeleteMood(ctx context.Context, id string) (bool, error)
 }
 type QueryResolver interface {
@@ -74,6 +76,10 @@ func (s shortMapper) Mutation_CreateUser(ctx context.Context, user model.UserInp
 
 func (s shortMapper) Mutation_CreateMood(ctx context.Context, mood model.MoodInput) (*model.Mood, error) {
 	return s.r.Mutation().CreateMood(ctx, mood)
+}
+
+func (s shortMapper) Mutation_UpdateMood(ctx context.Context, moodId string, score *int, Comment *string) (model.Mood, error) {
+	return s.r.Mutation().UpdateMood(ctx, moodId, score, Comment)
 }
 
 func (s shortMapper) Mutation_DeleteMood(ctx context.Context, id string) (bool, error) {
@@ -272,6 +278,8 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel []query.Selection
 			out.Values[i] = ec._Mutation_CreateUser(ctx, field)
 		case "CreateMood":
 			out.Values[i] = ec._Mutation_CreateMood(ctx, field)
+		case "UpdateMood":
+			out.Values[i] = ec._Mutation_UpdateMood(ctx, field)
 		case "DeleteMood":
 			out.Values[i] = ec._Mutation_DeleteMood(ctx, field)
 		default:
@@ -350,6 +358,68 @@ func (ec *executionContext) _Mutation_CreateMood(ctx context.Context, field grap
 		return graphql.Null
 	}
 	return ec._Mood(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_UpdateMood(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := field.Args["moodId"]; ok {
+		var err error
+		arg0, err = graphql.UnmarshalString(tmp)
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["moodId"] = arg0
+	var arg1 *int
+	if tmp, ok := field.Args["score"]; ok {
+		var err error
+		var ptr1 int
+		if tmp != nil {
+			ptr1, err = graphql.UnmarshalInt(tmp)
+			arg1 = &ptr1
+		}
+
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["score"] = arg1
+	var arg2 *string
+	if tmp, ok := field.Args["Comment"]; ok {
+		var err error
+		var ptr1 string
+		if tmp != nil {
+			ptr1, err = graphql.UnmarshalString(tmp)
+			arg2 = &ptr1
+		}
+
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+	}
+	args["Comment"] = arg2
+	rctx := graphql.GetResolverContext(ctx)
+	rctx.Object = "Mutation"
+	rctx.Args = args
+	rctx.Field = field
+	rctx.PushField(field.Alias)
+	defer rctx.Pop()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+		return ec.resolvers.Mutation_UpdateMood(ctx, args["moodId"].(string), args["score"].(*int), args["Comment"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(model.Mood)
+	return ec._Mood(ctx, field.Selections, &res)
 }
 
 func (ec *executionContext) _Mutation_DeleteMood(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -1451,6 +1521,8 @@ func (ec *executionContext) introspectType(name string) *introspection.Type {
 
 var parsedSchema = schema.MustParse(`type Query {
   me: User
+
+  # debug method
   User(id: ID!): User
   Users():[User!]
 }
@@ -1458,6 +1530,7 @@ var parsedSchema = schema.MustParse(`type Query {
 type Mutation{
   CreateUser(user:UserInput!): User
   CreateMood(mood:MoodInput!): Mood
+  UpdateMood(moodId:String!, score:Int, Comment:String): Mood!
   DeleteMood(id:String!): Boolean!
 }
 

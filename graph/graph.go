@@ -15,6 +15,7 @@ var (
 	ErrNotLogined   = errors.New("not logined")
 	ErrNoPermission = errors.New("no permission")
 	ErrBadRequest   = errors.New("Bad Request")
+	ErrParamIsNil   = errors.New("Param nil err")
 )
 
 func getUser(ctx context.Context) *model.User {
@@ -63,6 +64,25 @@ func (r *Resolver) Mutation_CreateMood(ctx context.Context, mood model.MoodInput
 	_, err := db.CreateMood(&entity)
 	return &entity, err
 
+}
+
+func (r *Resolver) Mutation_UpdateMood(ctx context.Context, moodId string, score *int, Comment *string) (model.Mood, error) {
+	if score == nil || Comment == nil || moodId == "" {
+		return model.Mood{}, ErrParamIsNil
+	}
+
+	query := bson.M{}
+	if *score >= 0 {
+		query["score"] = score
+	}
+	if *Comment != "" {
+		query["comment"] = *Comment
+	}
+	query = bson.M{"$set": query}
+	mlog.DEBUG("%v", query)
+	db.C(db.CollectionMood).Update(bson.M{"_id": moodId}, query)
+	mood, err := db.FindOneMood(bson.M{"_id": moodId})
+	return *mood, err
 }
 
 func (r *Resolver) Mutation_DeleteMood(ctx context.Context, id string) (bool, error) {
@@ -140,6 +160,9 @@ func (r *mutationResolver) CreateUser(ctx context.Context, user model.UserInput)
 func (r *mutationResolver) CreateMood(ctx context.Context, mood model.MoodInput) (*model.Mood, error) {
 	mlog.DEBUG("sr:%v", mood)
 	return r.Resolver.Mutation_CreateMood(ctx, mood)
+}
+func (r *mutationResolver) UpdateMood(ctx context.Context, moodId string, score *int, Comment *string) (model.Mood, error) {
+	return r.Resolver.Mutation_UpdateMood(ctx, moodId, score, Comment)
 }
 
 func (r *mutationResolver) DeleteMood(ctx context.Context, id string) (bool, error) {
