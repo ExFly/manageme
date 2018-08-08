@@ -53,7 +53,6 @@ func sessionMiddleware(next http.Handler) http.Handler {
 			// TODO
 			user, ok := isValidToken(tokenCookie.Value)
 			if ok && user != nil {
-				mlog.DEBUG("set session context")
 				ctx = context.WithValue(ctx, "user", user)
 				ctx = context.WithValue(ctx, "userId", user.ID)
 			}
@@ -72,12 +71,21 @@ func AllowOriginMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+func beginAndEndRequest(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mlog.DEBUG("-----------------start--------------")
+		mlog.INFO("url: %v", r.URL)
+		next.ServeHTTP(w, r)
+		mlog.DEBUG("------------------end---------------")
+	})
+}
 
 func main() {
 
 	config.LoadConfig("config.yml")
 
 	router := mux.NewRouter()
+	router.Use(beginAndEndRequest)
 	router.Use(AllowOriginMiddleware)
 	router.Use(sessionMiddleware)
 
@@ -121,7 +129,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	un, oku := params["user"]
 	pwd, okp := params["pwd"]
-	mlog.DEBUG("%v %v", oku, okp)
 	if !(oku && okp) {
 		mlog.DEBUG("login faild")
 		w.Write([]byte("con't login, maybe you done have param user or pwd"))
@@ -129,7 +136,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	username := un[0]
 	password := pwd[0]
-	mlog.DEBUG("%v", username)
 	user, ok := db.FindOneUser(bson.M{"username": username, "password": password})
 	if ok != nil || user == nil {
 		mlog.DEBUG("dont have the user:%v", username)

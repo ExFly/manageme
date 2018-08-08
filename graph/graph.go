@@ -110,6 +110,9 @@ func (r *Resolver) Query_Users(ctx context.Context) ([]model.User, error) {
 
 // User_moods like the name
 func (r *Resolver) User_moods(ctx context.Context, obj *model.User) ([]model.Mood, error) {
+	if obj == nil {
+		return nil, ErrParamIsNil
+	}
 	result, err := db.FindMoods(bson.M{"user": obj.ID})
 	return result, err
 }
