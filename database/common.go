@@ -5,6 +5,7 @@ import (
 	"github.com/exfly/manageme/model"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
+	"github.com/spf13/viper"
 )
 
 // DataSource like the name
@@ -25,14 +26,15 @@ const (
 
 // NewDataSource the constructor of the data source
 func SetupDataSource() {
-	ses, err := mgo.Dial("localhost/test")
+	mongourl := viper.GetString("db.url")
+	ses, err := mgo.Dial(mongourl)
 	if err != nil {
-		mlog.DEBUG("db error %v", err)
+		mlog.ERROR("db error url:%v err:%v", mongourl, err)
 		panic(err)
 	}
 	ses.SetMode(mgo.Monotonic, true)
 	session = ses
-	mlog.INFO("%v", session)
+	mlog.INFO("connect: %v", mongourl)
 }
 
 func genarateID() string {

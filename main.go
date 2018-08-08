@@ -7,6 +7,7 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/exfly/manageme/config"
 	db "github.com/exfly/manageme/database"
 	"github.com/exfly/manageme/graph"
 	mlog "github.com/exfly/manageme/log"
@@ -15,6 +16,7 @@ import (
 	"github.com/globalsign/mgo/bson"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+	"github.com/spf13/viper"
 	"github.com/vektah/gqlgen/graphql"
 	"github.com/vektah/gqlgen/handler"
 )
@@ -64,14 +66,20 @@ func sessionMiddleware(next http.Handler) http.Handler {
 func AllowOriginMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		// w.Header().Set("Access-Control-Allow-Methods", "GET,POST")
+		// w.Header().Set("Access-Control-Allow-Headers", "x-requested-with,content-type")
 		next.ServeHTTP(w, r)
 	})
 }
 
 func main() {
+
+	config.LoadConfig("config.yml")
+
 	router := mux.NewRouter()
 	router.Use(AllowOriginMiddleware)
 	router.Use(sessionMiddleware)
+
 	application := graph.NewResolver()
 	db.SetupDataSource()
 
@@ -96,15 +104,15 @@ func main() {
 	router.Handle("/loginas", http.HandlerFunc(loginHandler))
 	router.Handle("/logout", http.HandlerFunc(logoutHandler))
 
-	addr := fmt.Sprintf("%s:%d", "0.0.0.0", 8080)
+	addr := fmt.Sprintf("%s:%d", "0.0.0.0", viper.GetInt("server.graphql.port"))
 	srv := &http.Server{
 		Handler:      router,
 		Addr:         addr,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-	mlog.DEBUG("Start server @ %s", addr)
-	mlog.DEBUG("%v", srv.ListenAndServe())
+	mlog.INFO("Start server @ %s", addr)
+	mlog.ERROR("%v", srv.ListenAndServe())
 
 }
 

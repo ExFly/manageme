@@ -32,7 +32,6 @@ type Resolver struct {
 // NewResolver the Resolver's constructor
 func NewResolver() *Resolver {
 	application := Resolver{}
-	mlog.DEBUG("%v", application)
 	return &application
 }
 
