@@ -95,6 +95,11 @@ func (r *Resolver) Mutation_DeleteMood(ctx context.Context, id string) (bool, er
 func (r *Resolver) Query_me(ctx context.Context) (*model.User, error) {
 	return getUser(ctx), nil
 }
+func (r *Resolver) Query_moods(ctx context.Context) ([]model.Mood, error) {
+	user := getUser(ctx)
+	result, err := db.FindMoods(bson.M{"user": user.ID})
+	return result, err
+}
 
 // Query_user like the name
 func (r *Resolver) Query_user(ctx context.Context, id string) (*model.User, error) {
@@ -164,14 +169,18 @@ func (r *mutationResolver) DeleteMood(ctx context.Context, id string) (bool, err
 // QueryResolver implementer
 type queryResolver struct{ *Resolver }
 
+func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
+	return r.Resolver.Query_me(ctx)
+}
+func (r *queryResolver) Moods(ctx context.Context) ([]model.Mood, error) {
+	return r.Resolver.Query_moods(ctx)
+}
+
 func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
 	return r.Resolver.Query_user(ctx, id)
 }
 func (r *queryResolver) Users(ctx context.Context) ([]model.User, error) {
 	return r.Resolver.Query_Users(ctx)
-}
-func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
-	return r.Resolver.Query_me(ctx)
 }
 
 // UserResolver implementer

@@ -32,6 +32,7 @@ type Resolvers interface {
 	Mutation_UpdateMood(ctx context.Context, moodId string, score *int, Comment *string) (model.Mood, error)
 	Mutation_DeleteMood(ctx context.Context, id string) (bool, error)
 	Query_me(ctx context.Context) (*model.User, error)
+	Query_moods(ctx context.Context) ([]model.Mood, error)
 	Query_User(ctx context.Context, id string) (*model.User, error)
 	Query_Users(ctx context.Context) ([]model.User, error)
 
@@ -55,6 +56,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Me(ctx context.Context) (*model.User, error)
+	Moods(ctx context.Context) ([]model.Mood, error)
 	User(ctx context.Context, id string) (*model.User, error)
 	Users(ctx context.Context) ([]model.User, error)
 }
@@ -88,6 +90,10 @@ func (s shortMapper) Mutation_DeleteMood(ctx context.Context, id string) (bool, 
 
 func (s shortMapper) Query_me(ctx context.Context) (*model.User, error) {
 	return s.r.Query().Me(ctx)
+}
+
+func (s shortMapper) Query_moods(ctx context.Context) ([]model.Mood, error) {
+	return s.r.Query().Moods(ctx)
 }
 
 func (s shortMapper) Query_User(ctx context.Context, id string) (*model.User, error) {
@@ -473,6 +479,8 @@ func (ec *executionContext) _Query(ctx context.Context, sel []query.Selection) g
 			out.Values[i] = graphql.MarshalString("Query")
 		case "me":
 			out.Values[i] = ec._Query_me(ctx, field)
+		case "moods":
+			out.Values[i] = ec._Query_moods(ctx, field)
 		case "User":
 			out.Values[i] = ec._Query_User(ctx, field)
 		case "Users":
@@ -519,6 +527,45 @@ func (ec *executionContext) _Query_me(ctx context.Context, field graphql.Collect
 			return graphql.Null
 		}
 		return ec._User(ctx, field.Selections, res)
+	})
+}
+
+func (ec *executionContext) _Query_moods(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{
+		Object: "Query",
+		Args:   nil,
+		Field:  field,
+	})
+	return graphql.Defer(func() (ret graphql.Marshaler) {
+		defer func() {
+			if r := recover(); r != nil {
+				userErr := ec.Recover(ctx, r)
+				ec.Error(ctx, userErr)
+				ret = graphql.Null
+			}
+		}()
+
+		resTmp, err := ec.ResolverMiddleware(ctx, func(ctx context.Context) (interface{}, error) {
+			return ec.resolvers.Query_moods(ctx)
+		})
+		if err != nil {
+			ec.Error(ctx, err)
+			return graphql.Null
+		}
+		if resTmp == nil {
+			return graphql.Null
+		}
+		res := resTmp.([]model.Mood)
+		arr1 := graphql.Array{}
+		for idx1 := range res {
+			arr1 = append(arr1, func() graphql.Marshaler {
+				rctx := graphql.GetResolverContext(ctx)
+				rctx.PushIndex(idx1)
+				defer rctx.Pop()
+				return ec._Mood(ctx, field.Selections, &res[idx1])
+			}())
+		}
+		return arr1
 	})
 }
 
@@ -1521,7 +1568,7 @@ func (ec *executionContext) introspectType(name string) *introspection.Type {
 
 var parsedSchema = schema.MustParse(`type Query {
   me: User
-
+  moods:[Mood!]
   # debug method
   User(id: ID!): User
   Users():[User!]

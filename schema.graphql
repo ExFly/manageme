@@ -1,6 +1,6 @@
 type Query {
   me: User
-
+  moods:[Mood!]
   # debug method
   User(id: ID!): User
   Users():[User!]
