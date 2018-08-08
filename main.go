@@ -58,7 +58,11 @@ func sessionMiddleware(next http.Handler) http.Handler {
 			}
 		}
 		lenoftoken := len(tokenCookie.String())
-		mlog.DEBUG("session middleware: %v...%v", tokenCookie.String()[0:15], tokenCookie.String()[lenoftoken-10:lenoftoken])
+		if lenoftoken > 15 {
+			mlog.DEBUG("session middleware: %v...%v", tokenCookie.String()[0:15], tokenCookie.String()[lenoftoken-10:lenoftoken])
+		} else {
+			mlog.DEBUG("session middleware: %v", tokenCookie)
+		}
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -74,7 +78,7 @@ func AllowOriginMiddleware(next http.Handler) http.Handler {
 func beginAndEndRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		mlog.DEBUG("-----------------start--------------")
-		mlog.INFO("url: %v", r.URL)
+		mlog.INFO("method:%7v url: %v", r.Method, r.URL)
 		next.ServeHTTP(w, r)
 		mlog.DEBUG("------------------end---------------")
 	})
