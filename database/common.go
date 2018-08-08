@@ -48,7 +48,7 @@ func C(name Collection) *mgo.Collection {
 
 // Close close the sessiion
 func Close() {
-	mlog.DEBUG("")
+	mlog.DEBUG("close db")
 	session.Close()
 }
 
@@ -78,7 +78,7 @@ func FindUsers(query bson.M) (ret []model.User, err error) {
 // FindOneUser find one user
 func FindOneUser(query bson.M) (ret *model.User, err error) {
 	err = C(CollectionUser).Find(query).Limit(1).One(&ret)
-	mlog.DEBUG("%v", ret)
+	mlog.DEBUG("userid: %v", ret.ID)
 	return
 }
 
@@ -101,14 +101,13 @@ func CreateMood(entity *model.Mood) (string, error) {
 // FindMoods like the name
 func FindMoods(query bson.M) (ret []model.Mood, err error) {
 	err = C(CollectionMood).Find(query).All(&ret)
-	mlog.DEBUG("")
 	return
 }
 
 // FindOneMood like the name
 func FindOneMood(query bson.M) (ret *model.Mood, err error) {
 	err = C(CollectionMood).Find(query).Limit(1).One(&ret)
-	mlog.DEBUG("%v", ret.ID)
+	mlog.DEBUG("moodid: %v", ret.ID)
 	return
 }
 

@@ -17,7 +17,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/spf13/viper"
-	"github.com/vektah/gqlgen/graphql"
 	"github.com/vektah/gqlgen/handler"
 )
 
@@ -48,6 +47,7 @@ func isValidToken(token string) (*model.User, bool) {
 func sessionMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+
 		tokenCookie, err := r.Cookie("jwt-token")
 		if err == nil && tokenCookie != nil {
 			// TODO
@@ -58,7 +58,8 @@ func sessionMiddleware(next http.Handler) http.Handler {
 				ctx = context.WithValue(ctx, "userId", user.ID)
 			}
 		}
-		mlog.DEBUG("session middleware:%v", tokenCookie)
+		lenoftoken := len(tokenCookie.String())
+		mlog.DEBUG("session middleware: %v...%v", tokenCookie.String()[0:15], tokenCookie.String()[lenoftoken-10:lenoftoken])
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -84,13 +85,13 @@ func main() {
 	db.SetupDataSource()
 
 	graphqlHttpHandler := handler.GraphQL(graph.NewExecutableSchema(application),
-		handler.ResolverMiddleware(func(ctx context.Context, next graphql.Resolver) (res interface{}, err error) {
-			rc := graphql.GetResolverContext(ctx)
-			mlog.DEBUG("Entered %v %v", rc.Object, rc.Field.Name)
-			res, err = next(ctx)
-			mlog.DEBUG("Left %v, %v => %v %v", rc.Object, rc.Field.Name, res, err)
-			return res, err
-		}),
+		// handler.ResolverMiddleware(func(ctx context.Context, next graphql.Resolver) (res interface{}, err error) {
+		// 	rc := graphql.GetResolverContext(ctx)
+		// 	mlog.DEBUG("Entered %v %v", rc.Object, rc.Field.Name)
+		// 	res, err = next(ctx)
+		// 	mlog.DEBUG("Left %v, %v => %v %v", rc.Object, rc.Field.Name, res, err)
+		// 	return res, err
+		// }),
 		handler.WebsocketUpgrader(websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
 				// FIXME: do real check
