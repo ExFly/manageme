@@ -25,12 +25,16 @@ const (
 )
 
 // NewDataSource the constructor of the data source
+// If the mongourl is empty, it means that the database initialization failed and should fail quickly.
 func SetupDataSource() {
 	mongourl := viper.GetString("db.url")
+	if mongourl == "" {
+		mlog.ERROR("config not load")
+		return
+	}
 	ses, err := mgo.Dial(mongourl)
 	if err != nil {
-		mlog.ERROR("db error url:%v err:%v", mongourl, err)
-		panic(err)
+		mlog.FATAL("db error url:%v err:%v", mongourl, err)
 	}
 	ses.SetMode(mgo.Monotonic, true)
 	session = ses
@@ -42,7 +46,11 @@ func genarateID() string {
 }
 
 // C get the collection by the name
+// If the session is empty, it means that the database initialization failed and should fail quickly.
 func C(name Collection) *mgo.Collection {
+	if session == nil {
+		mlog.FATAL("config not load")
+	}
 	return session.DB(DATABASENAME).C(string(name))
 }
 

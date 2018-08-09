@@ -3,6 +3,7 @@ package log
 import (
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -17,7 +18,10 @@ func INFO(formating string, args ...interface{}) {
 func ERROR(formating string, args ...interface{}) {
 	LOG("ERROR", formating, args...)
 }
-
+func FATAL(formating string, args ...interface{}) {
+	LOG("FATAL", formating, args...)
+	os.Exit(1)
+}
 func LOG(level string, formating string, args ...interface{}) {
 	filename, line, funcname := "???", 0, "???"
 	pc, filename, line, ok := runtime.Caller(2)
