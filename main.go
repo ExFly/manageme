@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/99designs/gqlgen/handler"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/exfly/manageme/config"
 	db "github.com/exfly/manageme/database"
@@ -17,7 +18,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/spf13/viper"
-	"github.com/vektah/gqlgen/handler"
 )
 
 func isValidToken(token string) (*model.User, bool) {
@@ -93,7 +93,8 @@ func main() {
 	router.Use(AllowOriginMiddleware)
 	router.Use(sessionMiddleware)
 
-	application := graph.NewResolver()
+	application := graph.Config{Resolvers: graph.NewResolver()}
+	// application := graph.Config{Resolvers: &graph.Resolver{}}
 	db.SetupDataSource()
 
 	graphqlHttpHandler := handler.GraphQL(graph.NewExecutableSchema(application),

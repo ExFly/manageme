@@ -2,12 +2,40 @@
 
 
 [[projects]]
+  digest = "1:6f74e34a6c6368403b7ee304c41c8f1369c9170909f8320f1062d94a650dc97b"
+  name = "github.com/99designs/gqlgen"
+  packages = [
+    "graphql",
+    "graphql/introspection",
+    "handler",
+  ]
+  pruneopts = "UT"
+  revision = "3575c289486fce174c941b63749b9bbb88c3ca90"
+  version = "0.4.3"
+
+[[projects]]
+  branch = "master"
+  digest = "1:897d91c431ce469d35a5e6030e60e617dccd9a0e95bdffa6a80594f5c5800d29"
+  name = "github.com/agnivade/levenshtein"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3d21ba515fe27b856f230847e856431ae1724adc"
+
+[[projects]]
   digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
   name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
   pruneopts = "UT"
   revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
   version = "v3.2.0"
+
+[[projects]]
+  digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
+  name = "github.com/fsnotify/fsnotify"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
+  version = "v1.4.7"
 
 [[projects]]
   branch = "master"
@@ -49,6 +77,33 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:a361611b8c8c75a1091f00027767f7779b29cb37c456a71b8f2604c88057ab40"
+  name = "github.com/hashicorp/hcl"
+  packages = [
+    ".",
+    "hcl/ast",
+    "hcl/parser",
+    "hcl/printer",
+    "hcl/scanner",
+    "hcl/strconv",
+    "hcl/token",
+    "json/parser",
+    "json/scanner",
+    "json/token",
+  ]
+  pruneopts = "UT"
+  revision = "ef8a98b0bbce4a65b5aa4c368430a80ddc533168"
+
+[[projects]]
+  digest = "1:c568d7727aa262c32bdf8a3f7db83614f7af0ed661474b24588de635c20024c7"
+  name = "github.com/magiconair/properties"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c2353362d570a7bfa228149c62842019201cfb71"
+  version = "v1.8.0"
+
+[[projects]]
+  branch = "master"
   digest = "1:5ab79470a1d0fb19b041a624415612f8236b3c06070161a910562f2b2d064355"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
@@ -56,38 +111,118 @@
   revision = "f15292f7a699fcc1a38a80977f80a046874ba8ac"
 
 [[projects]]
-  digest = "1:13cdc380a2aeb66a6a8c6d3c9c9c9d5fa5ac3f79fbc06fef3a5192ec72be594d"
-  name = "github.com/vektah/gqlgen"
+  digest = "1:95741de3af260a92cc5c7f3f3061e85273f5a81b5db20d4bd68da74bd521675e"
+  name = "github.com/pelletier/go-toml"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c01d1270ff3e442a8a57cddc1c92dc1138598194"
+  version = "v1.2.0"
+
+[[projects]]
+  digest = "1:bd1ae00087d17c5a748660b8e89e1043e1e5479d0fea743352cda2f8dd8c4f84"
+  name = "github.com/spf13/afero"
   packages = [
-    "client",
-    "graphql",
-    "handler",
-    "neelance/common",
-    "neelance/errors",
-    "neelance/introspection",
-    "neelance/query",
-    "neelance/schema",
-    "neelance/validation",
+    ".",
+    "mem",
   ]
   pruneopts = "UT"
-  revision = "381b34691fd93829e50ba8821412dc3467ec4821"
-  version = "0.3.0"
+  revision = "787d034dfe70e44075ccc060d346146ef53270ad"
+  version = "v1.1.1"
+
+[[projects]]
+  digest = "1:516e71bed754268937f57d4ecb190e01958452336fa73dbac880894164e91c1f"
+  name = "github.com/spf13/cast"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "8965335b8c7107321228e3e3702cab9832751bac"
+  version = "v1.2.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:080e5f630945ad754f4b920e60b4d3095ba0237ebf88dc462eb28002932e3805"
+  name = "github.com/spf13/jwalterweatherman"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "7c0cea34c8ece3fbeb2b27ab9b59511d360fb394"
+
+[[projects]]
+  digest = "1:dab83a1bbc7ad3d7a6ba1a1cc1760f25ac38cdf7d96a5cdd55cd915a4f5ceaf9"
+  name = "github.com/spf13/pflag"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "9a97c102cda95a86cec2345a6f09f55a939babf5"
+  version = "v1.0.2"
+
+[[projects]]
+  digest = "1:4fc8a61287ccfb4286e1ca5ad2ce3b0b301d746053bf44ac38cf34e40ae10372"
+  name = "github.com/spf13/viper"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "907c19d40d9a6c9bb55f040ff4ae45271a4754b9"
+  version = "v1.1.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:a5edbe378a5fdc4d445cdd859c8362037923dabdc49d5e09a210a1f0951271e2"
+  name = "github.com/vektah/gqlparser"
+  packages = [
+    ".",
+    "ast",
+    "gqlerror",
+    "lexer",
+    "parser",
+    "validator",
+    "validator/rules",
+  ]
+  pruneopts = "UT"
+  revision = "c063da4fdb845f11bd524096452558e8759103b6"
+
+[[projects]]
+  branch = "master"
+  digest = "1:33a43cb31975899cfcd81600d1390467db1778ae87102f80668a753fed8c663e"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  pruneopts = "UT"
+  revision = "98c5dad5d1a0e8a73845ecc8897d0bd56586511d"
+
+[[projects]]
+  digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"
+  name = "golang.org/x/text"
+  packages = [
+    "internal/gen",
+    "internal/triegen",
+    "internal/ucd",
+    "transform",
+    "unicode/cldr",
+    "unicode/norm",
+  ]
+  pruneopts = "UT"
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
+
+[[projects]]
+  digest = "1:342378ac4dcb378a5448dd723f0784ae519383532f5e70ade24132c4c8693202"
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/99designs/gqlgen/graphql",
+    "github.com/99designs/gqlgen/graphql/introspection",
+    "github.com/99designs/gqlgen/handler",
     "github.com/dgrijalva/jwt-go",
     "github.com/globalsign/mgo",
     "github.com/globalsign/mgo/bson",
     "github.com/gorilla/mux",
     "github.com/gorilla/websocket",
-    "github.com/vektah/gqlgen/client",
-    "github.com/vektah/gqlgen/graphql",
-    "github.com/vektah/gqlgen/handler",
-    "github.com/vektah/gqlgen/neelance/introspection",
-    "github.com/vektah/gqlgen/neelance/query",
-    "github.com/vektah/gqlgen/neelance/schema",
+    "github.com/spf13/viper",
+    "github.com/vektah/gqlparser",
+    "github.com/vektah/gqlparser/ast",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -26,17 +26,33 @@
 
 
 [[constraint]]
-  name = "github.com/vektah/gqlgen"
-  version = "0.3.0"
-
-[prune]
-  go-tests = true
-  unused-packages = true
+  name = "github.com/99designs/gqlgen"
+  version = "0.4.3"
 
 [[constraint]]
-  name = "github.com/stretchr/testify"
-  version = "1.2.2"
+  name = "github.com/dgrijalva/jwt-go"
+  version = "3.2.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/globalsign/mgo"
 
 [[constraint]]
   name = "github.com/gorilla/mux"
   version = "1.6.2"
+
+[[constraint]]
+  name = "github.com/gorilla/websocket"
+  version = "1.2.0"
+
+[[constraint]]
+  name = "github.com/spf13/viper"
+  version = "1.1.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/vektah/gqlparser"
+
+[prune]
+  go-tests = true
+  unused-packages = true

@@ -94,7 +94,7 @@ query GetMood($userID: ID!){
 ## query create and del your mood
 * http://localhost:8080/query?query=query%20queryme{%20me{%20id%20moods{%20id%20comment%20}%20}%20}
 * http://localhost:8080/query?query=mutation%20CreateMood%20{%20CreateMood(mood:%20{score:%205,%20comment:%20%22mycommon%22})%20{%20id%20user%20{%20id%20}%20}%20}
-* http://localhost:8080/query?query=mutation%20delMood{%20DeleteMood(id:%225b6972ae421aa9c59a31eefd%22)%20}
+* http://localhost:8080/query?query=mutation%20delMood{DeleteMood(id:%225b6e53880f6eb0cf14162417%22)}
 
 ## Reference
 
