@@ -71,7 +71,11 @@ func (r *moodResolver) User(ctx context.Context, obj *model.Mood) (model.User, e
 type mutationResolver struct{ *Resolver }
 
 func (r *mutationResolver) CreateUser(ctx context.Context, user model.UserInput) (*model.User, error) {
-	u := model.User{Username: user.Username, Password: user.Password}
+	sex := user.Sex
+	if sex == "" {
+		sex = model.SexUnknown
+	}
+	u := model.User{Sex: sex, Username: user.Username, Password: user.Password}
 	db.CreateUser(&u)
 	return &u, nil
 }
@@ -85,6 +89,10 @@ func (r *mutationResolver) CreateMood(ctx context.Context, mood model.MoodInput)
 	return &entity, err
 }
 func (r *mutationResolver) UpdateMood(ctx context.Context, moodID string, score *int, Comment *string) (model.Mood, error) {
+	user := getUser(ctx)
+	if user == nil {
+		return model.Mood{}, ErrNotLogined
+	}
 	if score == nil || Comment == nil || moodID == "" {
 		return model.Mood{}, ErrParamIsNil
 	}
@@ -99,6 +107,7 @@ func (r *mutationResolver) UpdateMood(ctx context.Context, moodID string, score 
 	mlog.DEBUG("%v", query)
 	db.C(db.CollectionMood).Update(bson.M{"_id": moodID}, query)
 	mood, err := db.FindOneMood(bson.M{"_id": moodID})
+	// TODO: Update requires permission
 	return *mood, err
 }
 func (r *mutationResolver) DeleteMood(ctx context.Context, id string) (bool, error) {
@@ -121,6 +130,9 @@ func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 }
 func (r *queryResolver) Moods(ctx context.Context) ([]model.Mood, error) {
 	user := getUser(ctx)
+	if user == nil {
+		return nil, ErrNotLogined
+	}
 	result, err := db.FindMoods(bson.M{"user": user.ID})
 	return result, err
 }
