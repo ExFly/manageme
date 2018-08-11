@@ -113,3 +113,4 @@ query GetMood($userID: ID!){
 go run main.go
 # command-line-arguments./main.go:28:29: cannot use graphm.NewExecutableSchema(&graphm.App literal) (type "github.com/exfly/manageme/vendor/github.com/vektah/gqlgen/graphql".ExecutableSchema) as type "github.com/vektah/gqlgen/graphql".ExecutableSchema in argument to handler.GraphQL:        "github.com/exfly/manageme/vendor/github.com/vektah/gqlgen/graphql".ExecutableSchema does not implement "github.com/vektah/gqlgen/graphql".ExecutableSchema (wrong type for Mutation method)                have Mutation(context.Context, *"github.com/exfly/manageme/vendor/github.com/vektah/gqlgen/neelance/query".Operation) *"github.com/exfly/manageme/vendor/github.com/vektah/gqlgen/graphql".Response                want Mutation(context.Context, *"github.com/vektah/gqlgen/neelance/query".Operation) *"github.com/vektah/gqlgen/graphql".Response
 ```
+
