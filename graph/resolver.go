@@ -14,10 +14,14 @@ import (
 )
 
 var (
-	ErrNotLogined   = errors.New("not logined")
+	// ErrNotLogined like the name
+	ErrNotLogined = errors.New("not logined")
+	// ErrNoPermission like the name
 	ErrNoPermission = errors.New("no permission")
-	ErrBadRequest   = errors.New("Bad Request")
-	ErrParamIsNil   = errors.New("Param nil err")
+	// ErrBadRequest like the name
+	ErrBadRequest = errors.New("Bad Request")
+	// ErrParamIsNil like the name
+	ErrParamIsNil = errors.New("Param nil err")
 )
 
 func getUser(ctx context.Context) *model.User {
@@ -28,21 +32,31 @@ func getUser(ctx context.Context) *model.User {
 	return user
 }
 
+// Resolver like the name
 type Resolver struct{}
 
+// NewResolver like the name
 func NewResolver() *Resolver {
 	application := Resolver{}
 	return &application
 }
+
+// Mood like the name
 func (r *Resolver) Mood() MoodResolver {
 	return &moodResolver{r}
 }
+
+// Mutation like the name
 func (r *Resolver) Mutation() MutationResolver {
 	return &mutationResolver{r}
 }
+
+// Query like the name
 func (r *Resolver) Query() QueryResolver {
 	return &queryResolver{r}
 }
+
+// User like the name
 func (r *Resolver) User() UserResolver {
 	return &userResolver{r}
 }
@@ -70,8 +84,8 @@ func (r *mutationResolver) CreateMood(ctx context.Context, mood model.MoodInput)
 	_, err := db.CreateMood(&entity)
 	return &entity, err
 }
-func (r *mutationResolver) UpdateMood(ctx context.Context, moodId string, score *int, Comment *string) (model.Mood, error) {
-	if score == nil || Comment == nil || moodId == "" {
+func (r *mutationResolver) UpdateMood(ctx context.Context, moodID string, score *int, Comment *string) (model.Mood, error) {
+	if score == nil || Comment == nil || moodID == "" {
 		return model.Mood{}, ErrParamIsNil
 	}
 	query := bson.M{}
@@ -83,8 +97,8 @@ func (r *mutationResolver) UpdateMood(ctx context.Context, moodId string, score 
 	}
 	query = bson.M{"$set": query}
 	mlog.DEBUG("%v", query)
-	db.C(db.CollectionMood).Update(bson.M{"_id": moodId}, query)
-	mood, err := db.FindOneMood(bson.M{"_id": moodId})
+	db.C(db.CollectionMood).Update(bson.M{"_id": moodID}, query)
+	mood, err := db.FindOneMood(bson.M{"_id": moodID})
 	return *mood, err
 }
 func (r *mutationResolver) DeleteMood(ctx context.Context, id string) (bool, error) {

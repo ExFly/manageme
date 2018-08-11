@@ -8,6 +8,7 @@
 git clone https://github.com/ExFly/manageme.git
 
 # backend
+go get -u github.com/vektah/gorunpkg
 dep ensure
 docker-compose up -d
 go run main.go
