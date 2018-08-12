@@ -2,9 +2,10 @@
 
 
 [[projects]]
-  digest = "1:6f74e34a6c6368403b7ee304c41c8f1369c9170909f8320f1062d94a650dc97b"
+  digest = "1:cf147d3af36324ce5a67062670b1cc6ad3bdda49d50d0ff89220bcb247ddd949"
   name = "github.com/99designs/gqlgen"
   packages = [
+    "client",
     "graphql",
     "graphql/introspection",
     "handler",
@@ -119,6 +120,14 @@
   version = "v1.2.0"
 
 [[projects]]
+  digest = "1:0b8dd7447e420afff0260179dc892711e837edd1d446bc78dab924624a3c3c81"
+  name = "github.com/rs/cors"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3fb1b69b103a84de38a19c3c6ec073dd6caa4d3f"
+  version = "v1.5.0"
+
+[[projects]]
   digest = "1:bd1ae00087d17c5a748660b8e89e1043e1e5479d0fea743352cda2f8dd8c4f84"
   name = "github.com/spf13/afero"
   packages = [
@@ -212,6 +221,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/99designs/gqlgen/client",
     "github.com/99designs/gqlgen/graphql",
     "github.com/99designs/gqlgen/graphql/introspection",
     "github.com/99designs/gqlgen/handler",
@@ -220,6 +230,7 @@
     "github.com/globalsign/mgo/bson",
     "github.com/gorilla/mux",
     "github.com/gorilla/websocket",
+    "github.com/rs/cors",
     "github.com/spf13/viper",
     "github.com/vektah/gqlparser",
     "github.com/vektah/gqlparser/ast",

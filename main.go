@@ -17,6 +17,7 @@ import (
 	"github.com/globalsign/mgo/bson"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+	"github.com/rs/cors"
 	"github.com/spf13/viper"
 )
 
@@ -90,7 +91,14 @@ func main() {
 
 	router := mux.NewRouter()
 	router.Use(beginAndEndRequest)
-	router.Use(AllowOriginMiddleware)
+
+	// router.Use(AllowOriginMiddleware)
+	router.Use(cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowCredentials: true,
+		Debug:            viper.GetBool("server.debug"),
+	}).Handler)
+
 	router.Use(sessionMiddleware)
 
 	application := graph.Config{Resolvers: graph.NewResolver()}
