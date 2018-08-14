@@ -24,7 +24,7 @@ const (
 	CollectionMood Collection = "mood"
 )
 
-// NewDataSource the constructor of the data source
+// SetupDataSource the constructor of the data source
 // If the mongourl is empty, it means that the database initialization failed and should fail quickly.
 func SetupDataSource() {
 	mongourl := viper.GetString("db.url")
@@ -54,7 +54,7 @@ func C(name Collection) *mgo.Collection {
 	return session.DB(DATABASENAME).C(string(name))
 }
 
-// Close close the sessiion
+// Close close the sesstion
 func Close() {
 	mlog.DEBUG("close db")
 	session.Close()
