@@ -1820,7 +1820,7 @@ enum Sex {
 }
 
 enum Permission {
-  DEBUG
+  DEBUG # Don't save it to the database
 }
 
 # 日期

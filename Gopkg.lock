@@ -172,6 +172,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:ca007fd2af9c6a3b03fc4fcfe5ccd79aa0d6b2a693e2b2bdeca576a828175042"
+  name = "github.com/vektah/gorunpkg"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c4ab2c9cf7b96860d2c7e0897124bf0427ca2398"
+
+[[projects]]
+  branch = "master"
   digest = "1:a5edbe378a5fdc4d445cdd859c8362037923dabdc49d5e09a210a1f0951271e2"
   name = "github.com/vektah/gqlparser"
   packages = [
@@ -232,6 +240,7 @@
     "github.com/gorilla/websocket",
     "github.com/rs/cors",
     "github.com/spf13/viper",
+    "github.com/vektah/gorunpkg",
     "github.com/vektah/gqlparser",
     "github.com/vektah/gqlparser/ast",
   ]
