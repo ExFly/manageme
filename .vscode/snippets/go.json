@@ -1,0 +1,27 @@
+{
+  "Dataloader Loader": {
+    "prefix": "l.",
+    "body": [
+      "l.$1 = $1Loader{",
+      "    wait: wait,",
+      "    maxBatch: maxBatch,",
+      "    fetch: func(keys []string )([]*$1, []error) {",
+      "        $2, err := Find$2(bson.M{\"$in\": keys})",
+      "        if err != nil {",
+      "            return nil, dupError(err, len(keys))",
+      "        }",
+      "        ret := make([]*$1, 0, len(keys))",
+      "        cache := make(map[string]*$1)",
+      "        for _, $3 := range $2 {",
+      "            cache[$3.ID] = &$3",
+      "        }",
+      "        for _, id := range keys {",
+      "            ret = append(ret, cache[id])",
+      "        }",
+      "        return ret, nil",
+      "    },",
+      "}"
+    ],
+    "description": "init an dataloader"
+  }
+}
