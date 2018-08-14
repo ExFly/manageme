@@ -101,11 +101,11 @@ func main() {
 
 	router.Use(sessionMiddleware)
 
-	application := graph.Config{Resolvers: graph.NewResolver()}
+
 	// application := graph.Config{Resolvers: &graph.Resolver{}}
 	db.SetupDataSource()
 
-	graphqlHttpHandler := handler.GraphQL(graph.NewExecutableSchema(application),
+	graphqlHttpHandler := handler.GraphQL(graph.NewExecutableSchema(graph.ResolverFactory()),
 		// handler.ResolverMiddleware(func(ctx context.Context, next graphql.Resolver) (res interface{}, err error) {
 		// 	rc := graphql.GetResolverContext(ctx)
 		// 	mlog.DEBUG("Entered %v %v", rc.Object, rc.Field.Name)

@@ -18,6 +18,41 @@ type UserInput struct {
 	Password string `json:"password"`
 }
 
+type Permission string
+
+const (
+	PermissionDebug Permission = "DEBUG"
+)
+
+func (e Permission) IsValid() bool {
+	switch e {
+	case PermissionDebug:
+		return true
+	}
+	return false
+}
+
+func (e Permission) String() string {
+	return string(e)
+}
+
+func (e *Permission) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Permission(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Permission", str)
+	}
+	return nil
+}
+
+func (e Permission) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type Sex string
 
 const (
