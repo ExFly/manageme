@@ -12,6 +12,7 @@ import (
 	"github.com/globalsign/mgo/bson"
 )
 
+// ResolverFactory Config Constructor with Resolver Directives and others
 func ResolverFactory() Config {
 	application := Config{
 		Resolvers: &Resolver{},

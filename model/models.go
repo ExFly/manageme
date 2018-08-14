@@ -4,6 +4,7 @@ import (
 	time "time"
 )
 
+// Mood l
 type Mood struct {
 	ID      string    `json:"id" bson:"_id"`
 	User    string    `json:"user" bson:"user"`
@@ -12,6 +13,7 @@ type Mood struct {
 	Time    time.Time `json:"time" bson:"time"`
 }
 
+// User l
 type User struct {
 	ID       string `json:"id" bson:"_id"`
 	Sex      Sex    `json:"sex" bson:"sex"`
