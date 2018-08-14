@@ -1,16 +1,19 @@
+directive @logined() on FIELD | FIELD_DEFINITION
+directive @can(permission: Permission!, meta:Map) on FIELD | FIELD_DEFINITION
+
 type Query {
-  me: User
-  moods:[Mood!]
+  me: User @logined
+  moods:[Mood!] @logined
   # debug method
-  User(id: ID!): User
-  Users():[User!]
+  User(id: ID!): User @can(permission: DEBUG)
+  Users():[User!] @can(permission: DEBUG)
 }
 
 type Mutation{
-  CreateUser(user:UserInput!): User
-  CreateMood(mood:MoodInput!): Mood
-  UpdateMood(moodId:String!, score:Int, Comment:String): Mood!
-  DeleteMood(id:String!): Boolean!
+  CreateUser(user:UserInput!): User @can(permission: DEBUG)
+  CreateMood(mood:MoodInput!): Mood @logined
+  UpdateMood(moodId:String!, score:Int, Comment:String): Mood! @logined
+  DeleteMood(id:String!): Boolean! @logined
 }
 
 # User 用户
@@ -37,8 +40,13 @@ enum Sex {
   UNKNOWN
 }
 
+enum Permission {
+  DEBUG # Don't save it to the database
+}
+
 # 日期
 scalar Time
+scalar Map
 
 input UserInput {
   sex: Sex!

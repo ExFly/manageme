@@ -36,6 +36,9 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	Logined func(ctx context.Context, next graphql.Resolver) (res interface{}, err error)
+
+	Can func(ctx context.Context, next graphql.Resolver, permission model.Permission, meta *map[string]interface{}) (res interface{}, err error)
 }
 type MoodResolver interface {
 	User(ctx context.Context, obj *model.Mood) (model.User, error)
@@ -1711,6 +1714,52 @@ func UnmarshalUserInput(v interface{}) (model.UserInput, error) {
 }
 
 func (ec *executionContext) FieldMiddleware(ctx context.Context, next graphql.Resolver) interface{} {
+	rctx := graphql.GetResolverContext(ctx)
+	for _, d := range rctx.Field.Definition.Directives {
+		switch d.Name {
+		case "logined":
+			if ec.directives.Logined != nil {
+				n := next
+				next = func(ctx context.Context) (interface{}, error) {
+					return ec.directives.Logined(ctx, n)
+				}
+			}
+		case "can":
+			if ec.directives.Can != nil {
+				rawArgs := d.ArgumentMap(ec.Variables)
+				args := map[string]interface{}{}
+				var arg0 model.Permission
+				if tmp, ok := rawArgs["permission"]; ok {
+					var err error
+					err = (&arg0).UnmarshalGQL(tmp)
+					if err != nil {
+						ec.Error(ctx, err)
+						return graphql.Null
+					}
+				}
+				args["permission"] = arg0
+				var arg1 *map[string]interface{}
+				if tmp, ok := rawArgs["meta"]; ok {
+					var err error
+					var ptr1 map[string]interface{}
+					if tmp != nil {
+						ptr1 = tmp.(map[string]interface{})
+						arg1 = &ptr1
+					}
+
+					if err != nil {
+						ec.Error(ctx, err)
+						return graphql.Null
+					}
+				}
+				args["meta"] = arg1
+				n := next
+				next = func(ctx context.Context) (interface{}, error) {
+					return ec.directives.Can(ctx, n, args["permission"].(model.Permission), args["meta"].(*map[string]interface{}))
+				}
+			}
+		}
+	}
 	res, err := ec.ResolverMiddleware(ctx, next)
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1728,19 +1777,22 @@ func (ec *executionContext) introspectType(name string) *introspection.Type {
 }
 
 var parsedSchema = gqlparser.MustLoadSchema(
-	&ast.Source{Name: "schema.graphql", Input: `type Query {
-  me: User
-  moods:[Mood!]
+	&ast.Source{Name: "schema.graphql", Input: `directive @logined() on FIELD | FIELD_DEFINITION
+directive @can(permission: Permission!, meta:Map) on FIELD | FIELD_DEFINITION
+
+type Query {
+  me: User @logined
+  moods:[Mood!] @logined
   # debug method
-  User(id: ID!): User
-  Users():[User!]
+  User(id: ID!): User @can(permission: DEBUG)
+  Users():[User!] @can(permission: DEBUG)
 }
 
 type Mutation{
-  CreateUser(user:UserInput!): User
-  CreateMood(mood:MoodInput!): Mood
-  UpdateMood(moodId:String!, score:Int, Comment:String): Mood!
-  DeleteMood(id:String!): Boolean!
+  CreateUser(user:UserInput!): User @can(permission: DEBUG)
+  CreateMood(mood:MoodInput!): Mood @logined
+  UpdateMood(moodId:String!, score:Int, Comment:String): Mood! @logined
+  DeleteMood(id:String!): Boolean! @logined
 }
 
 # User 用户
@@ -1767,8 +1819,13 @@ enum Sex {
   UNKNOWN
 }
 
+enum Permission {
+  DEBUG
+}
+
 # 日期
 scalar Time
+scalar Map
 
 input UserInput {
   sex: Sex!
