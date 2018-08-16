@@ -172,3 +172,7 @@ typings/
 # End of https://www.gitignore.io/api/go,node,jetbrains+all
 
 /data/
+
+# exe
+manageme
+
