@@ -1,0 +1,35 @@
+settings:
+  files:
+    outputs:
+      status: true
+      path: ""
+      name: .r.outputs.log
+    logs:
+      status: true
+      path: ""
+      name: .r.logs.log
+    errors:
+      status: true
+      path: ""
+      name: .r.errors.log
+  legacy:
+    force: true
+    interval: 100ms
+server:
+  status: true
+  open: false
+  port: 5002
+  host: localhost
+schema:
+- name: manageme
+  path: .
+  commands: {}
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    ignored_paths:
+    - .git
+    - .realize
+    - vendor
