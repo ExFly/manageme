@@ -2,7 +2,7 @@ version: '2'
 services:
     mongodb:
         image: mongo:latest
-        container_name: "mongodb"
+        container_name: "manageme_mongo"
         environment:
           - MONGO_DATA_DIR=/data/db
           - MONGO_LOG_DIR=/var/mongo/log
@@ -12,6 +12,14 @@ services:
         ports:
             - 27017:27017
         command: mongod --smallfiles --logpath=/dev/null # --quiet
+    redis:
+        image: redis
+        container_name: manageme_redis
+        volumes:
+          - ./data/redis:/data
+          - ./redis.conf:/usr/local/etc/redis/redis.conf
+        ports:
+          - 6379:6379
 
     # myapp:
     #     build: .
