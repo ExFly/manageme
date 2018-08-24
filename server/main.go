@@ -21,6 +21,14 @@ import (
 	"github.com/spf13/viper"
 )
 
+func dataloaderMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		loader := graph.NewLoader()
+		ctx := context.WithValue(r.Context(), graph.LOADERKEY, loader)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
 func isValidToken(token string) (*model.User, bool) {
 	parsedToken, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
 		// from github.com/dhrijalva/jwt-go/hmac.go we should return a []byte
@@ -91,21 +99,19 @@ func main() {
 
 	router := mux.NewRouter()
 	router.Use(beginAndEndRequest)
-
 	// router.Use(AllowOriginMiddleware)
 	router.Use(cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowCredentials: true,
 		Debug:            viper.GetBool("server.debug"),
 	}).Handler)
-
 	router.Use(sessionMiddleware)
+	router.Use(dataloaderMiddleware)
 
-	application := graph.Config{Resolvers: graph.NewResolver()}
 	// application := graph.Config{Resolvers: &graph.Resolver{}}
 	db.SetupDataSource()
 
-	graphqlHttpHandler := handler.GraphQL(graph.NewExecutableSchema(application),
+	graphqlHttpHandler := handler.GraphQL(graph.NewExecutableSchema(graph.ResolverFactory()),
 		// handler.ResolverMiddleware(func(ctx context.Context, next graphql.Resolver) (res interface{}, err error) {
 		// 	rc := graphql.GetResolverContext(ctx)
 		// 	mlog.DEBUG("Entered %v %v", rc.Object, rc.Field.Name)

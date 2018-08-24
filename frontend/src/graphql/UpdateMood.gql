@@ -1,0 +1,5 @@
+mutation UpdateMood($moodId: String!, $score: Int, $Comment: String){
+  UpdateMood(moodId: $moodId, score: $score. Comment: $Comment) {
+    id
+  }
+}

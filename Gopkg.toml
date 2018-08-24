@@ -3,7 +3,7 @@
 # Refer to https://golang.github.io/dep/docs/Gopkg.toml.html
 # for detailed Gopkg.toml documentation.
 #
-# required = ["github.com/user/thing/cmd/thing"]
+required = ["github.com/99designs/gqlgen/graphql"]
 # ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
 #
 # [[constraint]]
@@ -60,3 +60,11 @@
 [[constraint]]
   name = "github.com/rs/cors"
   version = "1.5.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/vektah/dataloaden"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/vektah/gorunpkg"

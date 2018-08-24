@@ -1,0 +1,39 @@
+settings:
+  legacy:
+    force: false
+    interval: 0s
+server:
+  status: true
+  open: false
+  port: 5002
+  host: localhost
+schema:
+- name: server
+  path: server
+  env:
+  commands: 
+    build:
+      status: true
+    run:
+      status: true
+      path: server
+  watcher:
+    extensions:
+    - go
+    paths:
+    - ../config
+    - ../database
+    - ../graph
+    - ../log
+    - ../model
+    - ../oauth
+    - ../server
+    - ../util
+    ignored_paths:
+    - .git
+    - .realize
+    - vendor
+    - .data
+    - .idea
+    - .vscod
+    - frontend
