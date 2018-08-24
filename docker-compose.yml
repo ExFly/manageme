@@ -7,8 +7,8 @@ services:
           - MONGO_DATA_DIR=/data/db
           - MONGO_LOG_DIR=/var/mongo/log
         volumes:
-          - ./data/mongo/data:/data/db
-          - ./data/mongo/log:/var/mongo/log
+          - ./.data/mongo/data:/data/db
+          - ./.data/mongo/log:/var/mongo/log
         ports:
             - 27017:27017
         command: mongod --smallfiles --logpath=/dev/null # --quiet
@@ -16,7 +16,7 @@ services:
         image: redis
         container_name: manageme_redis
         volumes:
-          - ./data/redis:/data
+          - ./.data/redis:/data
           - ./redis.conf:/usr/local/etc/redis/redis.conf
         ports:
           - 6379:6379

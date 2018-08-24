@@ -1,35 +1,39 @@
 settings:
-  files:
-    outputs:
-      status: true
-      path: ""
-      name: .r.outputs.log
-    logs:
-      status: true
-      path: ""
-      name: .r.logs.log
-    errors:
-      status: true
-      path: ""
-      name: .r.errors.log
   legacy:
-    force: true
-    interval: 100ms
+    force: false
+    interval: 0s
 server:
   status: true
   open: false
   port: 5002
   host: localhost
 schema:
-- name: manageme
-  path: .
-  commands: {}
+- name: server
+  path: server
+  env:
+  commands: 
+    build:
+      status: true
+    run:
+      status: true
+      path: server
   watcher:
     extensions:
     - go
     paths:
-    - /
+    - ../config
+    - ../database
+    - ../graph
+    - ../log
+    - ../model
+    - ../oauth
+    - ../server
+    - ../util
     ignored_paths:
     - .git
     - .realize
     - vendor
+    - .data
+    - .idea
+    - .vscod
+    - frontend

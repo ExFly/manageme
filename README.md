@@ -11,7 +11,7 @@ git clone https://github.com/ExFly/manageme.git
 go get -u github.com/vektah/gorunpkg
 dep ensure
 docker-compose up -d
-go run main.go
+go run server/main.go or  realize start # 详见 github.com/oxequa/realize
 
 # frontend
 cd frontend
