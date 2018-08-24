@@ -1,0 +1,51 @@
+type Query {
+  me: User
+
+  # debug method
+  User(id: ID!): User
+  Users():[User!]
+}
+
+type Mutation{
+  CreateUser(user:UserInput!): User
+  CreateMood(mood:MoodInput!): Mood
+  DeleteMood(id:String!): Boolean!
+}
+
+# User 用户
+type User {
+  id: ID!
+  sex: Sex!
+  username: String!
+  password: String!
+  moods: [Mood!]
+}
+
+#  Mood 心情
+type Mood {
+  id: ID!
+  user: User!
+  score: Int!
+  comment: String
+  time: Time!
+}
+
+enum Sex {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+# 日期
+scalar Time
+
+input UserInput {
+  sex: Sex!
+  username: String!
+  password: String!
+}
+
+input MoodInput {
+  score: Int!
+  comment: String
+}
