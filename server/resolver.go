@@ -1,22 +1,23 @@
 //go:generate gorunpkg github.com/99designs/gqlgen
 
-package graph
+package main
 
 import (
 	"context"
 	"time"
 
 	db "github.com/exfly/manageme/database"
+	"github.com/exfly/manageme/graph"
 	mlog "github.com/exfly/manageme/log"
 	"github.com/exfly/manageme/model"
 	"github.com/globalsign/mgo/bson"
 )
 
 // ResolverFactory Config Constructor with Resolver Directives and others
-func ResolverFactory() Config {
-	application := Config{
+func ResolverFactory() graph.Config {
+	application := graph.Config{
 		Resolvers: &Resolver{},
-		Directives: DirectiveRoot{
+		Directives: graph.DirectiveRoot{
 			Logined: Logined,
 			Can:     RequirePermission,
 		},
@@ -28,22 +29,22 @@ func ResolverFactory() Config {
 type Resolver struct{}
 
 // Mood like the name
-func (r *Resolver) Mood() MoodResolver {
+func (r *Resolver) Mood() graph.MoodResolver {
 	return &moodResolver{r}
 }
 
 // Mutation like the name
-func (r *Resolver) Mutation() MutationResolver {
+func (r *Resolver) Mutation() graph.MutationResolver {
 	return &mutationResolver{r}
 }
 
 // Query like the name
-func (r *Resolver) Query() QueryResolver {
+func (r *Resolver) Query() graph.QueryResolver {
 	return &queryResolver{r}
 }
 
 // User like the name
-func (r *Resolver) User() UserResolver {
+func (r *Resolver) User() graph.UserResolver {
 	return &userResolver{r}
 }
 

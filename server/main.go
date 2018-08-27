@@ -21,7 +21,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func dataloaderMiddleware(next http.Handler) http.Handler {
+func DataloaderMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		loader := graph.NewLoader()
 		ctx := context.WithValue(r.Context(), graph.LOADERKEY, loader)
@@ -53,7 +53,7 @@ func isValidToken(token string) (*model.User, bool) {
 	return user, true
 }
 
-func sessionMiddleware(next http.Handler) http.Handler {
+func SessionMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
@@ -84,7 +84,7 @@ func AllowOriginMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
-func beginAndEndRequest(next http.Handler) http.Handler {
+func BeginAndEndRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		mlog.DEBUG("-----------------start--------------")
 		mlog.INFO("method:%7v url: %v", r.Method, r.URL)
@@ -98,20 +98,20 @@ func main() {
 	config.LoadConfig("config.yml")
 
 	router := mux.NewRouter()
-	router.Use(beginAndEndRequest)
+	router.Use(BeginAndEndRequest)
 	// router.Use(AllowOriginMiddleware)
 	router.Use(cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowCredentials: true,
 		Debug:            viper.GetBool("server.debug"),
 	}).Handler)
-	router.Use(sessionMiddleware)
-	router.Use(dataloaderMiddleware)
+	router.Use(SessionMiddleware)
+	router.Use(DataloaderMiddleware)
 
 	// application := graph.Config{Resolvers: &graph.Resolver{}}
 	db.SetupDataSource()
 
-	graphqlHttpHandler := handler.GraphQL(graph.NewExecutableSchema(graph.ResolverFactory()),
+	graphqlHttpHandler := handler.GraphQL(graph.NewExecutableSchema(ResolverFactory()),
 		// handler.ResolverMiddleware(func(ctx context.Context, next graphql.Resolver) (res interface{}, err error) {
 		// 	rc := graphql.GetResolverContext(ctx)
 		// 	mlog.DEBUG("Entered %v %v", rc.Object, rc.Field.Name)
@@ -129,8 +129,8 @@ func main() {
 
 	router.Handle("/", handler.Playground("manage_me", "/query"))
 	router.Handle("/query", graphqlHttpHandler)
-	router.Handle("/loginas", http.HandlerFunc(loginHandler))
-	router.Handle("/logout", http.HandlerFunc(logoutHandler))
+	router.Handle("/loginas", http.HandlerFunc(LoginHandler))
+	router.Handle("/logout", http.HandlerFunc(LogoutHandler))
 
 	addr := fmt.Sprintf("%s:%d", "0.0.0.0", viper.GetInt("server.graphql.port"))
 	srv := &http.Server{
@@ -144,7 +144,7 @@ func main() {
 
 }
 
-func loginHandler(w http.ResponseWriter, r *http.Request) {
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	un, oku := params["user"]
 	pwd, okp := params["pwd"]
@@ -173,7 +173,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	mlog.DEBUG("%v %v", "login as", user.Username)
 }
 
-func logoutHandler(w http.ResponseWriter, r *http.Request) {
+func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	cookie := http.Cookie{Name: "jwt-token", Value: "", Path: "/", Expires: time.Now()}
 	http.SetCookie(w, &cookie)
 	w.Write([]byte("Loginouted"))

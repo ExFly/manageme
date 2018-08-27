@@ -1,4 +1,4 @@
-package graph
+package main
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 
 var (
 	// ErrNotLogined like the name
-	ErrNotLogined = errors.New("not logined")
+	ErrNotLogined = errors.New("Not Logined")
 	// ErrNoPermission like the name
-	ErrNoPermission = errors.New("no permission")
+	ErrNoPermission = errors.New("No Permission")
 	// ErrBadRequest like the name
 	ErrBadRequest = errors.New("Bad Request")
 )

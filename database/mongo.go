@@ -32,6 +32,17 @@ func SetupDataSource() {
 		mlog.ERROR("config not load")
 		return
 	}
+	setupDataSource(mongourl)
+}
+func SetupDataSourceTest() {
+	mongourl := viper.GetString("db.url") + "_test"
+	if mongourl == "" {
+		mlog.ERROR("config not load")
+		return
+	}
+	setupDataSource(mongourl)
+}
+func setupDataSource(mongourl string) {
 	ses, err := mgo.Dial(mongourl)
 	if err != nil {
 		mlog.FATAL("db error url:%v err:%v", mongourl, err)

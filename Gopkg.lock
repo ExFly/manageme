@@ -11,16 +11,24 @@
     "handler",
   ]
   pruneopts = "UT"
-  revision = "3575c289486fce174c941b63749b9bbb88c3ca90"
-  version = "0.4.3"
+  revision = "6f6622c6b78098660f03d38fb8f0d459d428bdbe"
+  version = "v0.4.4"
 
 [[projects]]
-  branch = "master"
   digest = "1:897d91c431ce469d35a5e6030e60e617dccd9a0e95bdffa6a80594f5c5800d29"
   name = "github.com/agnivade/levenshtein"
   packages = ["."]
   pruneopts = "UT"
   revision = "3d21ba515fe27b856f230847e856431ae1724adc"
+  version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:ad90cbfaeb74563adf5a06cd662036d2abcdc65984ddb2ba327f2de754c83421"
+  name = "github.com/buger/jsonparser"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "f4dd9f5a6b441265aefc1d44872a6f8c10f42b37"
 
 [[projects]]
   digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
@@ -40,7 +48,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4b08116de0de75c041bb341686f0b139930f26cb84dfdf7641d435548114181d"
+  digest = "1:298c2e83b90ae4e0893b509e7b8d613962476031f3acc4413edef684dfc6ddb1"
   name = "github.com/globalsign/mgo"
   packages = [
     ".",
@@ -50,7 +58,7 @@
     "internal/scram",
   ]
   pruneopts = "UT"
-  revision = "113d3961e7311526535a1ef7042196563d442761"
+  revision = "46bcd340f9a57a05cb5c6cf9b0b61b1c43f6ae06"
 
 [[projects]]
   digest = "1:c79fb010be38a59d657c48c6ba1d003a8aa651fa56b579d959d74573b7dff8e1"
@@ -69,16 +77,15 @@
   version = "v1.6.2"
 
 [[projects]]
-  digest = "1:43dd08a10854b2056e615d1b1d22ac94559d822e1f8b6fcc92c1a1057e85188e"
+  digest = "1:cee8e8ac80df6373e7daa11baf1f98c1b6f7242c49ccae7e1ec34a971dc408d9"
   name = "github.com/gorilla/websocket"
   packages = ["."]
   pruneopts = "UT"
-  revision = "ea4d1f681babbce9545c9c5f3d5194a789c89f5b"
-  version = "v1.2.0"
+  revision = "3ff3320c2a1756a3691521efc290b4701575147c"
+  version = "v1.3.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:a361611b8c8c75a1091f00027767f7779b29cb37c456a71b8f2604c88057ab40"
+  digest = "1:c0d19ab64b32ce9fe5cf4ddceba78d5bc9807f0016db6b1183599da3dcc24d10"
   name = "github.com/hashicorp/hcl"
   packages = [
     ".",
@@ -93,7 +100,8 @@
     "json/token",
   ]
   pruneopts = "UT"
-  revision = "ef8a98b0bbce4a65b5aa4c368430a80ddc533168"
+  revision = "8cb6e5b959231cc1119e43259c4a608f9c51a241"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:c568d7727aa262c32bdf8a3f7db83614f7af0ed661474b24588de635c20024c7"
@@ -105,11 +113,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5ab79470a1d0fb19b041a624415612f8236b3c06070161a910562f2b2d064355"
+  digest = "1:645110e089152bd0f4a011a2648fbb0e4df5977be73ca605781157ac297f50c4"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
   pruneopts = "UT"
-  revision = "f15292f7a699fcc1a38a80977f80a046874ba8ac"
+  revision = "fa473d140ef3c6adf42d6b391fe76707f1f243c8"
 
 [[projects]]
   digest = "1:95741de3af260a92cc5c7f3f3061e85273f5a81b5db20d4bd68da74bd521675e"
@@ -148,11 +156,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:080e5f630945ad754f4b920e60b4d3095ba0237ebf88dc462eb28002932e3805"
+  digest = "1:8a020f916b23ff574845789daee6818daf8d25a4852419aae3f0b12378ba432a"
   name = "github.com/spf13/jwalterweatherman"
   packages = ["."]
   pruneopts = "UT"
-  revision = "7c0cea34c8ece3fbeb2b27ab9b59511d360fb394"
+  revision = "14d3d4c518341bea657dd8a226f5121c0ff8c9f2"
 
 [[projects]]
   digest = "1:dab83a1bbc7ad3d7a6ba1a1cc1760f25ac38cdf7d96a5cdd55cd915a4f5ceaf9"
@@ -172,15 +180,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ca007fd2af9c6a3b03fc4fcfe5ccd79aa0d6b2a693e2b2bdeca576a828175042"
-  name = "github.com/vektah/gorunpkg"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "c4ab2c9cf7b96860d2c7e0897124bf0427ca2398"
-
-[[projects]]
-  branch = "master"
-  digest = "1:a5edbe378a5fdc4d445cdd859c8362037923dabdc49d5e09a210a1f0951271e2"
+  digest = "1:1ae7d9d18f0ea153eeaf8693863ae9ffb48a4801af9b34a266ff97956f2ee1d2"
   name = "github.com/vektah/gqlparser"
   packages = [
     ".",
@@ -192,15 +192,15 @@
     "validator/rules",
   ]
   pruneopts = "UT"
-  revision = "c063da4fdb845f11bd524096452558e8759103b6"
+  revision = "d0fbd67c7fe908a304fbd2e2a625b397d793af41"
 
 [[projects]]
   branch = "master"
-  digest = "1:33a43cb31975899cfcd81600d1390467db1778ae87102f80668a753fed8c663e"
+  digest = "1:19f92ce03256cc8a4467054842ec81f081985becd92bbc443e7604dfe801e6a8"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "98c5dad5d1a0e8a73845ecc8897d0bd56586511d"
+  revision = "4910a1d54f876d7b22162a85f4d066d3ee649450"
 
 [[projects]]
   digest = "1:8029e9743749d4be5bc9f7d42ea1659471767860f0cdc34d37c3111bd308a295"
@@ -233,6 +233,7 @@
     "github.com/99designs/gqlgen/graphql",
     "github.com/99designs/gqlgen/graphql/introspection",
     "github.com/99designs/gqlgen/handler",
+    "github.com/buger/jsonparser",
     "github.com/dgrijalva/jwt-go",
     "github.com/globalsign/mgo",
     "github.com/globalsign/mgo/bson",
@@ -240,7 +241,6 @@
     "github.com/gorilla/websocket",
     "github.com/rs/cors",
     "github.com/spf13/viper",
-    "github.com/vektah/gorunpkg",
     "github.com/vektah/gqlparser",
     "github.com/vektah/gqlparser/ast",
   ]

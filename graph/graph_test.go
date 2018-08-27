@@ -11,7 +11,7 @@ import (
 
 func TestStarwars(t *testing.T) {
 
-	application := Config{Resolvers: NewResolver()}
+	application := ResolverFactory()
 	srv := httptest.NewServer(handler.GraphQL(NewExecutableSchema(application)))
 	c := client.New(srv.URL)
 
