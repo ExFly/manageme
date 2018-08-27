@@ -1,10 +1,10 @@
-//go:generate gorunpkg github.com/99designs/gqlgen
-
 package main
 
 import (
 	"io/ioutil"
+	"log"
 	"net/http"
+	"net/http/cookiejar"
 	"net/http/httptest"
 	"net/url"
 	"testing"
@@ -18,6 +18,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/rs/cors"
 	"github.com/spf13/viper"
+	"golang.org/x/net/publicsuffix"
 )
 
 var (
@@ -65,12 +66,18 @@ func init() {
 }
 
 // GetGqlQuery query url, query
-func GetGqlQuery(baseurl, gqlquery string) ([]byte, error) {
+func GetGqlQuery(baseurl string, jar *cookiejar.Jar, gqlquery string) ([]byte, error) {
 	u, _ := url.Parse(baseurl)
 	q := u.Query()
 	q.Set("query", gqlquery)
 	u.RawQuery = q.Encode()
-	res, err := http.Get(u.String())
+	client := &http.Client{}
+	if jar != nil {
+		client = &http.Client{
+			Jar: jar,
+		}
+	}
+	res, err := client.Get(u.String())
 	// defer res.Body.Close()
 	if err != nil {
 		return nil, err
@@ -79,8 +86,23 @@ func GetGqlQuery(baseurl, gqlquery string) ([]byte, error) {
 	return body, err
 }
 
+func LoginT(urls string, jar *cookiejar.Jar) {
+	client := &http.Client{
+		Jar: jar,
+	}
+	if _, err := client.Get(urls); err != nil {
+		log.Fatal(err)
+	}
+}
+func LogoutT(jar *cookiejar.Jar) {
+	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func Test_HttptestServer(t *testing.T) {
-	data, err := GetGqlQuery(AppTestServer.URL+"/query", `
+	data, err := GetGqlQuery(AppTestServer.URL+"/query", nil, `
 	{
 		me{
 			id
@@ -96,5 +118,30 @@ func Test_HttptestServer(t *testing.T) {
 	target := "Not Logined"
 	if res != target {
 		t.Errorf("%v != %v", res, target)
+	}
+}
+
+func Test_HttptestServerWithLogined(t *testing.T) {
+	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
+	if err != nil {
+		log.Fatal(err)
+	}
+	LoginT(AppTestServer.URL+"/loginas?user=username&pwd=password", jar)
+	data, err := GetGqlQuery(AppTestServer.URL+"/query", jar, `
+	{
+		me{
+			id
+		}
+	}`)
+	if err != nil {
+		t.Error(err)
+	}
+	res, err := jsonparser.GetString(data, "data", "me", "id")
+	if err != nil {
+		t.Error(err)
+	}
+	target := "5b5ff11d2816453fe932f3b3"
+	if res != target {
+		t.Errorf("data:%v||| %v != %v", string(data), res, target)
 	}
 }
