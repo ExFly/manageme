@@ -25,6 +25,46 @@ var (
 	AppTestServer *httptest.Server // CAN NOT CLOSE THE AppTestServer!!!!
 )
 
+type GqlClient struct {
+	client  *http.Client
+	Baseurl string
+}
+
+func NewGqlClient() *GqlClient {
+	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return &GqlClient{
+		client:  &http.Client{Jar: jar},
+		Baseurl: AppTestServer.URL + "/query",
+	}
+}
+
+func (gqlc *GqlClient) Get(gqlquery string) ([]byte, error) {
+	u, _ := url.Parse(gqlc.Baseurl)
+	q := u.Query()
+	q.Set("query", gqlquery)
+	u.RawQuery = q.Encode()
+	// defer res.Body.Close()
+	client := gqlc.client
+	res, err := client.Get(u.String())
+	defer res.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+	body, _ := ioutil.ReadAll(res.Body)
+	return body, err
+}
+func (gqlc *GqlClient) Login() error {
+	client := gqlc.client
+	_, err := client.Get(AppTestServer.URL + "/loginas?user=username&pwd=password")
+	return err
+}
+func (gqlc *GqlClient) Logout() error {
+	panic("not implement")
+}
+
 func init() {
 	config.LoadConfig("../config.yml")
 
@@ -65,74 +105,11 @@ func init() {
 	AppTestServer = httptest.NewServer(router)
 }
 
-// GetGqlQuery query url, query
-func GetGqlQuery(baseurl string, jar *cookiejar.Jar, gqlquery string) ([]byte, error) {
-	u, _ := url.Parse(baseurl)
-	q := u.Query()
-	q.Set("query", gqlquery)
-	u.RawQuery = q.Encode()
-	client := &http.Client{}
-	if jar != nil {
-		client = &http.Client{
-			Jar: jar,
-		}
-	}
-	res, err := client.Get(u.String())
-	// defer res.Body.Close()
-	if err != nil {
-		return nil, err
-	}
-	body, _ := ioutil.ReadAll(res.Body)
-	return body, err
-}
-
-func LoginT(urls string, jar *cookiejar.Jar) {
-	client := &http.Client{
-		Jar: jar,
-	}
-	if _, err := client.Get(urls); err != nil {
-		log.Fatal(err)
-	}
-}
-func LogoutT(jar *cookiejar.Jar) {
-	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func Test_HttptestServer(t *testing.T) {
-	data, err := GetGqlQuery(AppTestServer.URL+"/query", nil, `
-	{
-		me{
-			id
-		}
-	}`)
-	if err != nil {
-		t.Error(err)
-	}
-	res, err := jsonparser.GetString(data, "errors", "[0]", "message")
-	if err != nil {
-		t.Error(err)
-	}
-	target := "Not Logined"
-	if res != target {
-		t.Errorf("%v != %v", res, target)
-	}
-}
-
-func Test_HttptestServerWithLogined(t *testing.T) {
-	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
-	if err != nil {
-		log.Fatal(err)
-	}
-	LoginT(AppTestServer.URL+"/loginas?user=username&pwd=password", jar)
-	data, err := GetGqlQuery(AppTestServer.URL+"/query", jar, `
-	{
-		me{
-			id
-		}
-	}`)
+func Test_GqlClientWithLogin(t *testing.T) {
+	client := NewGqlClient()
+	client.Login()
+	data, err := client.Get(`{me{id}}`)
+	t.Log(string(data))
 	if err != nil {
 		t.Error(err)
 	}
@@ -140,8 +117,7 @@ func Test_HttptestServerWithLogined(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	target := "5b5ff11d2816453fe932f3b3"
-	if res != target {
-		t.Errorf("data:%v||| %v != %v", string(data), res, target)
+	if res == "" {
+		t.Errorf("error response %v", res)
 	}
 }
