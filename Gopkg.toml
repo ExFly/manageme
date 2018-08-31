@@ -68,3 +68,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/vektah/gorunpkg"
+
+[[constraint]]
+  name = "github.com/mongodb/mongo-go-driver"
+  version = "0.0.12"
