@@ -6,15 +6,15 @@ import (
 
 	db "github.com/exfly/manageme/database"
 	"github.com/exfly/manageme/model"
-	"github.com/globalsign/mgo/bson"
+	"github.com/exfly/manageme/util"
 )
 
 // define your loader here
 const LOADERKEY = "LOADER"
 
 type Loader struct {
-	User UserLoader
-	Mood MoodLoader
+	User *UserLoader
+	Mood *MoodLoader
 }
 
 func GetLoader(ctx context.Context) *Loader {
@@ -35,50 +35,46 @@ func dupError(err error, len int) []error {
 }
 
 func NewLoader() *Loader {
-	l := Loader{}
+	loader := Loader{}
 	wait := 10 * time.Millisecond
 	maxBatch := 1000
 
-	l.User = UserLoader{
+	loader.User = &UserLoader{
 		wait:     wait,
 		maxBatch: maxBatch,
-		fetch: func(keys []string) ([]*model.User, []error) {
-			entities, err := db.FindUsers(bson.M{"_id": bson.M{"$in": keys}})
+		fetch: func(keys []string) (ret []*model.User, errs []error) {
+			cur, err := db.UserCollection.Find(context.Background(), util.M{"_id": util.M{"$in": keys}})
 			if err != nil {
 				return nil, dupError(err, len(keys))
 			}
-			ret := make([]*model.User, 0, len(keys))
-			cache := make(map[string]*model.User)
-			for _, entity := range entities {
-				item := entity
-				cache[entity.ID] = &item
+			defer cur.Close(context.Background())
+			for cur.Next(context.Background()) {
+				var User_ *model.User
+				err := cur.Decode(&User_)
+				ret = append(ret, User_)
+				errs = append(errs, err)
 			}
-			for _, id := range keys {
-				ret = append(ret, cache[id])
-			}
-			return ret, nil
+			return
 		},
 	}
-	l.Mood = MoodLoader{
+	loader.Mood = &MoodLoader{
 		wait:     wait,
 		maxBatch: maxBatch,
-		fetch: func(keys []string) ([]*model.Mood, []error) {
-			entities, err := db.FindMoods(bson.M{"_id": bson.M{"$in": keys}})
+		fetch: func(keys []string) (ret []*model.Mood, errs []error) {
+			cur, err := db.MoodCollection.Find(context.Background(), util.M{"_id": util.M{"$in": keys}})
 			if err != nil {
 				return nil, dupError(err, len(keys))
 			}
-			ret := make([]*model.Mood, 0, len(keys))
-			cache := make(map[string]*model.Mood)
-			for _, entity := range entities {
-				item := entity
-				cache[entity.ID] = &item
+			defer cur.Close(context.Background())
+			for cur.Next(context.Background()) {
+				var Mood_ *model.Mood
+				err := cur.Decode(&Mood_)
+				ret = append(ret, Mood_)
+				errs = append(errs, err)
 			}
-			for _, id := range keys {
-				ret = append(ret, cache[id])
-			}
-			return ret, nil
+			return
 		},
 	}
 
-	return &l
+	return &loader
 }

@@ -3,7 +3,7 @@ type Query {
 
   # debug method
   User(id: ID!): User
-  Users():[User!]
+  Users: [User!]
 }
 
 type Mutation{

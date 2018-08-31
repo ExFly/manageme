@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
 
@@ -14,16 +13,20 @@ import (
 
 var ErrNotFound = errors.New("Not Found")
 
-func LoadConfig(filename string) {
+func LoadConfig(filename string) error {
 	file, err := os.Open(path.Join(".", filename))
+	if err != nil {
+		return err
+	}
 	content, err := ioutil.ReadAll(file)
 	// mlog.DEBUG("\n%v", string(content))
 	if err != nil {
 		file.Close()
-		log.Fatal(err)
+		return err
 	}
 	file.Close()
 	viper.SetConfigType("yaml")
 	viper.ReadConfig(bytes.NewBuffer(content))
 	mlog.INFO("loaded configfile %s", filename)
+	return nil
 }
