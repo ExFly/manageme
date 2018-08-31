@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -13,6 +14,9 @@ import (
 	"time"
 
 	"github.com/buger/jsonparser"
+	db "github.com/exfly/manageme/database"
+	"github.com/exfly/manageme/model"
+	"github.com/mongodb/mongo-go-driver/bson"
 	"golang.org/x/net/publicsuffix"
 )
 
@@ -67,6 +71,13 @@ func init() {
 	log.Println(os.Getenv("port"))
 	svr := serverFactory("me_test")
 	AppTestServer = httptest.NewServer(svr.Handler)
+	_, err := db.Client.Database("manageme_test").RunCommand(
+		context.Background(),
+		bson.NewDocument(bson.EC.Int32("dropDatabase", 1)),
+	)
+	log.Print(err)
+	log.Print(db.UserCollection)
+	db.UserCollection.InsertOne(context.Background(), model.User{ID: db.GenarateID(), Username: "username", Password: "password"})
 }
 
 func Test_GqlClientWithLogin(t *testing.T) {
@@ -82,6 +93,24 @@ func Test_GqlClientWithLogin(t *testing.T) {
 		t.Error(err)
 	}
 	if res == "" {
+		t.Errorf("error response %v", res)
+	}
+}
+
+func Test_GqlMood(t *testing.T) {
+	client := NewGqlClient()
+	client.Login()
+	data, err := client.Get(`mutation mood{
+		CreateMood(mood:{score:10,comment:"newcoment"}){comment}}`)
+	t.Log(string(data))
+	if err != nil {
+		t.Error(err)
+	}
+	res, err := jsonparser.GetString(data, "data", "CreateMood", "comment")
+	if err != nil {
+		t.Error(err)
+	}
+	if res != "newcoment" {
 		t.Errorf("error response %v", res)
 	}
 }

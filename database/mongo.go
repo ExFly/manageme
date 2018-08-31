@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"os"
 
-	"git.in.chaitin.com/babysitter/man-month/server/utils"
 	mlog "github.com/exfly/manageme/log"
 	"github.com/exfly/manageme/model"
 	"github.com/exfly/manageme/util"
@@ -25,6 +24,7 @@ var (
 
 func init() {
 	util.RegisterInitFunction("SetupDB", func() {
+		var err error
 		mongourl := os.Getenv("mongo")
 		if mongourl == "" {
 			mongourl = viper.GetString("db.url")
@@ -32,10 +32,16 @@ func init() {
 		if mongourl == "" {
 			mlog.ERROR("config not load")
 			return
+		} else {
+			mlog.INFO("%v", mongourl)
 		}
-		err := Client.Connect(context.TODO())
+		Client, err = mongo.NewClient(mongourl)
 		if err != nil {
-			log.Fatal(err)
+			mlog.ERROR("%v", err)
+		}
+		err = Client.Connect(context.TODO())
+		if err != nil {
+			mlog.ERROR("%v", err)
 		}
 		log.Println("connected to database")
 		u, _ := url.Parse(mongourl)
@@ -50,7 +56,7 @@ func init() {
 // UnmistakebleChars copied from https://github.com/meteor/meteor/blob/24865b28a0689de8b4949fb69ea1f95da647cd7a/packages/random/random.js#L88
 const UnmistakebleChars = "23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz"
 
-func genarateID() string {
+func GenarateID() string {
 	// FIXME: port the Random.id()
 	// return bson.NewObjectId().Hex()
 	buf := make([]byte, 17)
@@ -67,7 +73,7 @@ func C(name string) *mongo.Collection {
 }
 func CreateUser(entity *model.User) (string, error) {
 	if entity.ID == "" {
-		entity.ID = genarateID()
+		entity.ID = GenarateID()
 	}
 	_, err := UserCollection.InsertOne(context.Background(), entity)
 	if err != nil {
@@ -82,7 +88,7 @@ func CreateUser(entity *model.User) (string, error) {
 
 func CreateMood(entity *model.Mood) (string, error) {
 	if entity.ID == "" {
-		entity.ID = genarateID()
+		entity.ID = GenarateID()
 	}
 	_, err := MoodCollection.InsertOne(context.Background(), entity)
 	if err != nil {
@@ -117,7 +123,6 @@ func FindUser(ctx context.Context, query interface{}, opts ...findopt.Find) (ret
 }
 func FindOneUser(ctx context.Context, query interface{}, opts ...findopt.One) (ret *model.User, err error) {
 	cur := UserCollection.FindOne(ctx, query)
-	err = cur.Decode(&ret)
 	var rett model.User
 	err = cur.Decode(&rett)
 	ret = &rett
@@ -125,7 +130,7 @@ func FindOneUser(ctx context.Context, query interface{}, opts ...findopt.One) (r
 }
 
 func FindOneUserById(ctx context.Context, id interface{}) (ret *model.User, err error) {
-	return FindOneUser(ctx, utils.M{"_id": id})
+	return FindOneUser(ctx, util.M{"_id": id})
 }
 
 func FindMood(ctx context.Context, query interface{}, opts ...findopt.Find) (ret []model.Mood, err error) {
@@ -146,12 +151,11 @@ func FindMood(ctx context.Context, query interface{}, opts ...findopt.Find) (ret
 }
 func FindOneMood(ctx context.Context, query interface{}, opts ...findopt.One) (ret *model.Mood, err error) {
 	cur := MoodCollection.FindOne(ctx, query)
-	err = cur.Decode(&ret)
 	var rett model.Mood
 	err = cur.Decode(&rett)
 	ret = &rett
 	return
 }
 func FindOneMoodById(ctx context.Context, id interface{}) (ret *model.Mood, err error) {
-	return FindOneMood(ctx, utils.M{"_id": id})
+	return FindOneMood(ctx, util.M{"_id": id})
 }

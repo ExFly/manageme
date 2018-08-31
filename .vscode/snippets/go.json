@@ -20,7 +20,6 @@
       "}",
       "func FindOne$1(ctx context.Context, query interface{}, opts ...findopt.One) (ret *model.$1, err error) {",
       "       cur := $1Collection.FindOne(ctx, query)",
-      "       err = cur.Decode(&ret)",
       "       var rett model.$1",
 	    "       err = cur.Decode(&rett)",
 	    "       ret = &rett",

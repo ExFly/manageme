@@ -16,7 +16,6 @@ import (
 	"github.com/exfly/manageme/model"
 	"github.com/exfly/manageme/oauth"
 	"github.com/exfly/manageme/util"
-	"github.com/globalsign/mgo/bson"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/rs/cors"
@@ -48,7 +47,7 @@ func isValidToken(token string) (*model.User, bool) {
 	if !ok {
 		return nil, false
 	}
-	user, err := db.FindOneUser(bson.M{"_id": userID})
+	user, err := db.FindOneUser(context.Background(), util.M{"_id": userID})
 	if err != nil {
 		return nil, false
 	}
@@ -162,7 +161,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	username := un[0]
 	password := pwd[0]
-	user, ok := db.FindOneUser(bson.M{"username": username, "password": password})
+	user, ok := db.FindOneUser(r.Context(), util.M{"username": username, "password": password})
 	if ok != nil || user == nil {
 		mlog.DEBUG("dont have the user:%v", username)
 		w.Write([]byte("dont have the user:" + username))
