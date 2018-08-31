@@ -132,6 +132,7 @@ func serverFactory(configName string) *http.Server {
 		router.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
 		router.HandleFunc("/debug/pprof/profile", pprof.Profile)
 		router.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+		router.HandleFunc("/debug/pprof/trace", pprof.Trace)
 
 		// Manually add support for paths linked to by index page at /debug/pprof/
 		router.Handle("/debug/pprof/goroutine", pprof.Handler("goroutine"))
@@ -156,7 +157,6 @@ func serverFactory(configName string) *http.Server {
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-
 }
 func main() {
 	mlog.ERROR("%v", serverFactory("me").ListenAndServe())
