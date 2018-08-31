@@ -1,8 +1,12 @@
 package database
 
 import (
+	"math/rand"
+	"os"
+
 	mlog "github.com/exfly/manageme/log"
 	"github.com/exfly/manageme/model"
+	"github.com/exfly/manageme/util"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/spf13/viper"
@@ -24,36 +28,37 @@ const (
 	CollectionMood Collection = "mood"
 )
 
-// SetupDataSource the constructor of the data source
-// If the mongourl is empty, it means that the database initialization failed and should fail quickly.
-func SetupDataSource() {
-	mongourl := viper.GetString("db.url")
-	if mongourl == "" {
-		mlog.ERROR("config not load")
-		return
-	}
-	setupDataSource(mongourl)
-}
-func SetupDataSourceTest() {
-	mongourl := viper.GetString("db.url") + "_test"
-	if mongourl == "" {
-		mlog.ERROR("config not load")
-		return
-	}
-	setupDataSource(mongourl)
-}
-func setupDataSource(mongourl string) {
-	ses, err := mgo.Dial(mongourl)
-	if err != nil {
-		mlog.FATAL("db error url:%v err:%v", mongourl, err)
-	}
-	ses.SetMode(mgo.Monotonic, true)
-	session = ses
-	mlog.INFO("connect: %v", mongourl)
+func init() {
+	util.RegisterInitFunction("SetupDB", func() {
+		mongourl := os.Getenv("mongo")
+		if mongourl == "" {
+			mongourl = viper.GetString("db.url")
+		}
+		if mongourl == "" {
+			mlog.ERROR("config not load")
+			return
+		}
+		ses, err := mgo.Dial(mongourl)
+		if err != nil {
+			mlog.FATAL("db error url:%v err:%v", mongourl, err)
+		}
+		ses.SetMode(mgo.Monotonic, true)
+		session = ses
+		mlog.INFO("connect: %v", mongourl)
+	}, 1)
 }
 
+// UnmistakebleChars copied from https://github.com/meteor/meteor/blob/24865b28a0689de8b4949fb69ea1f95da647cd7a/packages/random/random.js#L88
+const UnmistakebleChars = "23456789ABCDEFGHJKLMNPQRSTWXYZabcdefghijkmnopqrstuvwxyz"
+
 func genarateID() string {
-	return bson.NewObjectId().Hex()
+	// FIXME: port the Random.id()
+	// return bson.NewObjectId().Hex()
+	buf := make([]byte, 17)
+	for i := 0; i < 17; i++ {
+		buf[i] = UnmistakebleChars[rand.Intn(len(UnmistakebleChars))]
+	}
+	return string(buf)
 }
 
 // C get the collection by the name

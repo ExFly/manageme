@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/99designs/gqlgen/handler"
@@ -14,6 +15,7 @@ import (
 	mlog "github.com/exfly/manageme/log"
 	"github.com/exfly/manageme/model"
 	"github.com/exfly/manageme/oauth"
+	"github.com/exfly/manageme/util"
 	"github.com/globalsign/mgo/bson"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -92,11 +94,10 @@ func BeginAndEndRequest(next http.Handler) http.Handler {
 		mlog.DEBUG("------------------end---------------")
 	})
 }
-
-func main() {
-
+func serverFactory(configName string) *http.Server {
+	config.LoadConfig("../config.yml")
 	config.LoadConfig("config.yml")
-
+	util.DoInit()
 	router := mux.NewRouter()
 	router.Use(BeginAndEndRequest)
 	// router.Use(AllowOriginMiddleware)
@@ -109,7 +110,7 @@ func main() {
 	router.Use(DataloaderMiddleware)
 
 	// application := graph.Config{Resolvers: &graph.Resolver{}}
-	db.SetupDataSource()
+	// db.SetupDataSource()
 
 	graphqlHttpHandler := handler.GraphQL(graph.NewExecutableSchema(ResolverFactory()),
 		// handler.ResolverMiddleware(func(ctx context.Context, next graphql.Resolver) (res interface{}, err error) {
@@ -131,16 +132,22 @@ func main() {
 	router.Handle("/query", graphqlHttpHandler)
 	router.Handle("/loginas", http.HandlerFunc(LoginHandler))
 	router.Handle("/logout", http.HandlerFunc(LogoutHandler))
-
-	addr := fmt.Sprintf("%s:%d", "0.0.0.0", viper.GetInt("server.graphql.port"))
-	srv := &http.Server{
+	port := os.Getenv("port")
+	if port == "" {
+		port = viper.GetString("server.graphql.port")
+	}
+	addr := fmt.Sprintf("%s:%s", "0.0.0.0", port)
+	mlog.INFO("generate server @ %s", addr)
+	return &http.Server{
 		Handler:      router,
 		Addr:         addr,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-	mlog.INFO("Start server @ %s", addr)
-	mlog.ERROR("%v", srv.ListenAndServe())
+
+}
+func main() {
+	mlog.ERROR("%v", serverFactory("me").ListenAndServe())
 
 }
 

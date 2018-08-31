@@ -13,7 +13,10 @@ var (
 	// ErrNoPermission like the name
 	ErrNoPermission = errors.New("No Permission")
 	// ErrBadRequest like the name
-	ErrBadRequest = errors.New("Bad Request")
+	ErrBadRequest    = errors.New("Bad Request")
+	ErrInvalidID     = errors.New("Invalid ID")
+	ErrNotFound      = errors.New("Not found")
+	ErrInternalError = errors.New("Internal Error")
 )
 
 func getUser(ctx context.Context) *model.User {
@@ -22,4 +25,16 @@ func getUser(ctx context.Context) *model.User {
 		return nil
 	}
 	return user
+}
+
+func mergeError(errs []error) error {
+	if errs == nil {
+		return nil
+	}
+	for _, err := range errs {
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
