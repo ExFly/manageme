@@ -10,7 +10,7 @@ import (
 	"github.com/exfly/manageme/graph"
 	mlog "github.com/exfly/manageme/log"
 	"github.com/exfly/manageme/model"
-	"github.com/globalsign/mgo/bson"
+	"github.com/exfly/manageme/util"
 )
 
 // ResolverFactory Config Constructor with Resolver Directives and others
@@ -51,7 +51,7 @@ func (r *Resolver) User() graph.UserResolver {
 type moodResolver struct{ *Resolver }
 
 func (r *moodResolver) User(ctx context.Context, obj *model.Mood) (model.User, error) {
-	result, err := db.FindOneUser(bson.M{"_id": obj.User})
+	result, err := db.FindOneUser(context.Background(), util.M{"_id": obj.User})
 	return *result, err
 }
 
@@ -77,23 +77,23 @@ func (r *mutationResolver) UpdateMood(ctx context.Context, moodID string, score 
 	if score == nil || Comment == nil || moodID == "" {
 		return model.Mood{}, ErrBadRequest
 	}
-	query := bson.M{}
+	query := util.M{}
 	if *score >= 0 {
 		query["score"] = score
 	}
 	if *Comment != "" {
 		query["comment"] = *Comment
 	}
-	query = bson.M{"$set": query}
+	query = util.M{"$set": query}
 	mlog.DEBUG("%v", query)
-	db.C(db.CollectionMood).Update(bson.M{"_id": moodID, "user": user.ID}, query)
-	mood, err := db.FindOneMood(bson.M{"_id": moodID})
+	db.MoodCollection.ReplaceOne(ctx, util.M{"_id": moodID, "user": user.ID}, query)
+	mood, err := db.FindOneMood(ctx, util.M{"_id": moodID})
 	// TODO: Update requires permission
 	return *mood, err
 }
 func (r *mutationResolver) DeleteMood(ctx context.Context, id string) (bool, error) {
 	user := getUser(ctx)
-	err := db.DeleteMood(bson.M{"_id": id, "user": user.ID})
+	err := db.DeleteMood(util.M{"_id": id, "user": user.ID})
 	if err != nil {
 		mlog.ERROR("%v", err)
 		return false, err
@@ -107,15 +107,15 @@ func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 	return getUser(ctx), nil
 }
 func (r *queryResolver) Moods(ctx context.Context) ([]model.Mood, error) {
-	result, err := db.FindMoods(bson.M{"user": getUser(ctx).ID})
+	result, err := db.FindMood(ctx, util.M{"user": getUser(ctx).ID})
 	return result, err
 }
 func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
-	result, err := db.FindOneUser(bson.M{"_id": id})
+	result, err := db.FindOneUser(ctx, util.M{"_id": id})
 	return result, err
 }
 func (r *queryResolver) Users(ctx context.Context) ([]model.User, error) {
-	result, err := db.FindUsers(bson.M{})
+	result, err := db.FindUser(ctx, util.M{})
 	return result, err
 }
 
@@ -125,6 +125,6 @@ func (r *userResolver) Moods(ctx context.Context, obj *model.User) ([]model.Mood
 	if obj == nil {
 		return nil, ErrBadRequest
 	}
-	result, err := db.FindMoods(bson.M{"user": obj.ID})
+	result, err := db.FindMood(ctx, util.M{"user": obj.ID})
 	return result, err
 }

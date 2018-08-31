@@ -3,7 +3,7 @@
 # Refer to https://golang.github.io/dep/docs/Gopkg.toml.html
 # for detailed Gopkg.toml documentation.
 #
-# required = ["github.com/99designs/gqlgen/graphql"]
+required = ["github.com/99designs/gqlgen", "github.com/vektah/dataloaden", "github.com/vektah/gorunpkg"]
 # ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
 #
 # [[constraint]]
@@ -34,10 +34,6 @@
   version = "3.2.0"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/globalsign/mgo"
-
-[[constraint]]
   name = "github.com/gorilla/mux"
   version = "1.6.2"
 
@@ -62,9 +58,5 @@
   version = "1.5.0"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/vektah/dataloaden"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/vektah/gorunpkg"
+  name = "github.com/mongodb/mongo-go-driver"
+  version = "0.0.12"

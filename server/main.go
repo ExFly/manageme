@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/99designs/gqlgen/handler"
@@ -14,7 +15,7 @@ import (
 	mlog "github.com/exfly/manageme/log"
 	"github.com/exfly/manageme/model"
 	"github.com/exfly/manageme/oauth"
-	"github.com/globalsign/mgo/bson"
+	"github.com/exfly/manageme/util"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/rs/cors"
@@ -46,7 +47,7 @@ func isValidToken(token string) (*model.User, bool) {
 	if !ok {
 		return nil, false
 	}
-	user, err := db.FindOneUser(bson.M{"_id": userID})
+	user, err := db.FindOneUser(context.Background(), util.M{"_id": userID})
 	if err != nil {
 		return nil, false
 	}
@@ -92,11 +93,10 @@ func BeginAndEndRequest(next http.Handler) http.Handler {
 		mlog.DEBUG("------------------end---------------")
 	})
 }
-
-func main() {
-
+func serverFactory(configName string) *http.Server {
+	config.LoadConfig("../config.yml")
 	config.LoadConfig("config.yml")
-
+	util.DoInit()
 	router := mux.NewRouter()
 	router.Use(BeginAndEndRequest)
 	// router.Use(AllowOriginMiddleware)
@@ -109,7 +109,7 @@ func main() {
 	router.Use(DataloaderMiddleware)
 
 	// application := graph.Config{Resolvers: &graph.Resolver{}}
-	db.SetupDataSource()
+	// db.SetupDataSource()
 
 	graphqlHttpHandler := handler.GraphQL(graph.NewExecutableSchema(ResolverFactory()),
 		// handler.ResolverMiddleware(func(ctx context.Context, next graphql.Resolver) (res interface{}, err error) {
@@ -131,16 +131,22 @@ func main() {
 	router.Handle("/query", graphqlHttpHandler)
 	router.Handle("/loginas", http.HandlerFunc(LoginHandler))
 	router.Handle("/logout", http.HandlerFunc(LogoutHandler))
-
-	addr := fmt.Sprintf("%s:%d", "0.0.0.0", viper.GetInt("server.graphql.port"))
-	srv := &http.Server{
+	port := os.Getenv("port")
+	if port == "" {
+		port = viper.GetString("server.graphql.port")
+	}
+	addr := fmt.Sprintf("%s:%s", "0.0.0.0", port)
+	mlog.INFO("generate server @ %s", addr)
+	return &http.Server{
 		Handler:      router,
 		Addr:         addr,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-	mlog.INFO("Start server @ %s", addr)
-	mlog.ERROR("%v", srv.ListenAndServe())
+
+}
+func main() {
+	mlog.ERROR("%v", serverFactory("me").ListenAndServe())
 
 }
 
@@ -155,7 +161,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	username := un[0]
 	password := pwd[0]
-	user, ok := db.FindOneUser(bson.M{"username": username, "password": password})
+	user, ok := db.FindOneUser(r.Context(), util.M{"username": username, "password": password})
 	if ok != nil || user == nil {
 		mlog.DEBUG("dont have the user:%v", username)
 		w.Write([]byte("dont have the user:" + username))
