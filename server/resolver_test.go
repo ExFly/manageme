@@ -2,14 +2,15 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
-	"net/url"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -41,14 +42,11 @@ func NewGqlClient() *GqlClient {
 }
 
 func (gqlc *GqlClient) Get(gqlquery string) ([]byte, error) {
-	u, _ := url.Parse(gqlc.Baseurl)
-	q := u.Query()
-	q.Set("query", gqlquery)
-	u.RawQuery = q.Encode()
-	// defer res.Body.Close()
 	client := gqlc.client
-	res, err := client.Get(u.String())
+	payload, _ := json.Marshal(map[string]interface{}{"operationName": "", "query": gqlquery, "variables": map[string]interface{}{}})
+	res, err := client.Post(gqlc.Baseurl, "application/x-www-form-urlencoded", strings.NewReader(string(payload)))
 	defer res.Body.Close()
+	log.Printf("%v", res.Request)
 	if err != nil {
 		return nil, err
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/http/pprof"
 	"os"
 	"time"
 
@@ -126,6 +127,19 @@ func serverFactory(configName string) *http.Server {
 			},
 		}),
 	)
+	if viper.GetBool("server.debug") {
+		router.HandleFunc("/debug/pprof/", pprof.Index)
+		router.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+		router.HandleFunc("/debug/pprof/profile", pprof.Profile)
+		router.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+		router.HandleFunc("/debug/pprof/trace", pprof.Trace)
+
+		// Manually add support for paths linked to by index page at /debug/pprof/
+		router.Handle("/debug/pprof/goroutine", pprof.Handler("goroutine"))
+		router.Handle("/debug/pprof/heap", pprof.Handler("heap"))
+		router.Handle("/debug/pprof/threadcreate", pprof.Handler("threadcreate"))
+		router.Handle("/debug/pprof/block", pprof.Handler("block"))
+	}
 
 	router.Handle("/", handler.Playground("manage_me", "/query"))
 	router.Handle("/query", graphqlHttpHandler)
@@ -143,7 +157,6 @@ func serverFactory(configName string) *http.Server {
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-
 }
 func main() {
 	mlog.ERROR("%v", serverFactory("me").ListenAndServe())
