@@ -42,6 +42,22 @@
   version = "v3.2.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:d9c71f7c48aa8f3713dd6938757843c9da9f6d08418fa74cd3f31014e20c0a82"
+  name = "github.com/exfly/manageme"
+  packages = [
+    "config",
+    "database",
+    "graph",
+    "log",
+    "model",
+    "oauth",
+    "util",
+  ]
+  pruneopts = "UT"
+  revision = "948d923dbe4659b08cc176e672d365c010a31f56"
+
+[[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
@@ -406,6 +422,13 @@
     "github.com/99designs/gqlgen/handler",
     "github.com/buger/jsonparser",
     "github.com/dgrijalva/jwt-go",
+    "github.com/exfly/manageme/config",
+    "github.com/exfly/manageme/database",
+    "github.com/exfly/manageme/graph",
+    "github.com/exfly/manageme/log",
+    "github.com/exfly/manageme/model",
+    "github.com/exfly/manageme/oauth",
+    "github.com/exfly/manageme/util",
     "github.com/gorilla/mux",
     "github.com/gorilla/websocket",
     "github.com/mongodb/mongo-go-driver/bson",
